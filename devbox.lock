@@ -5,7 +5,7 @@
       "last_modified": "2026-05-22T18:39:28Z",
       "resolved": "github:NixOS/nixpkgs/a0991c886dc83e6e9de01d5266e4842985b1850e?lastModified=1779475168"
     },
-    "go@1.26.2": {
+    "go@latest": {
       "last_modified": "2026-04-23T13:07:47Z",
       "resolved": "github:NixOS/nixpkgs/01fbdeef22b76df85ea168fbfe1bfd9e63681b30#go",
       "source": "devbox-search",
@@ -50,6 +50,54 @@
             }
           ],
           "store_path": "/nix/store/dimnagks1qsp7180yw74z0npp7z2ihs3-go-1.26.2"
+        }
+      }
+    },
+    "qt6.full@latest": {
+      "last_modified": "2024-02-26T19:46:43Z",
+      "resolved": "github:NixOS/nixpkgs/548a86b335d7ecd8b57ec617781f5e652ab0c38e#qt6.full",
+      "source": "devbox-search",
+      "version": "6.6.2",
+      "systems": {
+        "aarch64-darwin": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/4c51shs9gpydqsn4x7jqbvafx3hnhhcp-qt-full-6.6.2",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/4c51shs9gpydqsn4x7jqbvafx3hnhhcp-qt-full-6.6.2"
+        },
+        "aarch64-linux": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/59mq0ywbxib7fk6nmymvdimk28w72cdx-qt-full-6.6.2",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/59mq0ywbxib7fk6nmymvdimk28w72cdx-qt-full-6.6.2"
+        },
+        "x86_64-darwin": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/15gbww18556ksz9ff06hi0l76cbrpg7f-qt-full-6.6.2",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/15gbww18556ksz9ff06hi0l76cbrpg7f-qt-full-6.6.2"
+        },
+        "x86_64-linux": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/x2ma19rj5cas4km4b01xmzg99yhlkfk7-qt-full-6.6.2",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/x2ma19rj5cas4km4b01xmzg99yhlkfk7-qt-full-6.6.2"
         }
       }
     }
