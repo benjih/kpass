@@ -53,51 +53,239 @@
         }
       }
     },
-    "qt6.full@latest": {
-      "last_modified": "2024-02-26T19:46:43Z",
-      "resolved": "github:NixOS/nixpkgs/548a86b335d7ecd8b57ec617781f5e652ab0c38e#qt6.full",
+    "kdePackages.breeze-icons@6.6.0": {
+      "last_modified": "2024-10-10T05:33:31Z",
+      "resolved": "github:NixOS/nixpkgs/b69de56fac8c2b6f8fd27f2eca01dcda8e0a4221#kdePackages.breeze-icons",
       "source": "devbox-search",
-      "version": "6.6.2",
+      "version": "6.6.0",
       "systems": {
-        "aarch64-darwin": {
-          "outputs": [
-            {
-              "name": "out",
-              "path": "/nix/store/4c51shs9gpydqsn4x7jqbvafx3hnhhcp-qt-full-6.6.2",
-              "default": true
-            }
-          ],
-          "store_path": "/nix/store/4c51shs9gpydqsn4x7jqbvafx3hnhhcp-qt-full-6.6.2"
-        },
         "aarch64-linux": {
           "outputs": [
             {
               "name": "out",
-              "path": "/nix/store/59mq0ywbxib7fk6nmymvdimk28w72cdx-qt-full-6.6.2",
+              "path": "/nix/store/z6rlvvfi9735fr79p18qknliipw5fahr-breeze-icons-6.6.0",
               "default": true
-            }
-          ],
-          "store_path": "/nix/store/59mq0ywbxib7fk6nmymvdimk28w72cdx-qt-full-6.6.2"
-        },
-        "x86_64-darwin": {
-          "outputs": [
+            },
             {
-              "name": "out",
-              "path": "/nix/store/15gbww18556ksz9ff06hi0l76cbrpg7f-qt-full-6.6.2",
-              "default": true
+              "name": "debug",
+              "path": "/nix/store/9i60ji13s3wa4ij0m45wzlcbhnsvbmn2-breeze-icons-6.6.0-debug"
+            },
+            {
+              "name": "dev",
+              "path": "/nix/store/ylvpsc611kvbvgjscz5f0w4q8sn5swz0-breeze-icons-6.6.0-dev"
+            },
+            {
+              "name": "devtools",
+              "path": "/nix/store/nbar5f8ivgybgss742bv0b5zv8vn4vws-breeze-icons-6.6.0-devtools"
             }
           ],
-          "store_path": "/nix/store/15gbww18556ksz9ff06hi0l76cbrpg7f-qt-full-6.6.2"
+          "store_path": "/nix/store/z6rlvvfi9735fr79p18qknliipw5fahr-breeze-icons-6.6.0"
         },
         "x86_64-linux": {
           "outputs": [
             {
               "name": "out",
-              "path": "/nix/store/x2ma19rj5cas4km4b01xmzg99yhlkfk7-qt-full-6.6.2",
+              "path": "/nix/store/lp9harlaj0snym943vyny7q766jvsgb4-breeze-icons-6.6.0",
+              "default": true
+            },
+            {
+              "name": "devtools",
+              "path": "/nix/store/dp5csrs985fmk7mjl4xw8zf86acwd097-breeze-icons-6.6.0-devtools"
+            },
+            {
+              "name": "debug",
+              "path": "/nix/store/6h1nd5f702q4y9yjbxjjj9ar2nq301bq-breeze-icons-6.6.0-debug"
+            },
+            {
+              "name": "dev",
+              "path": "/nix/store/p7z4rhaxyn1didga7pxwkzihs9fg596l-breeze-icons-6.6.0-dev"
+            }
+          ],
+          "store_path": "/nix/store/lp9harlaj0snym943vyny7q766jvsgb4-breeze-icons-6.6.0"
+        }
+      }
+    },
+    "kdePackages.frameworkintegration@6.6.0": {
+      "last_modified": "2024-10-09T11:07:23Z",
+      "resolved": "github:NixOS/nixpkgs/4fa56ac6d86a213b556d4db9b1cb43a51b3e40ec#kdePackages.frameworkintegration",
+      "source": "devbox-search",
+      "version": "6.6.0",
+      "systems": {
+        "aarch64-linux": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/bh1d2zwg0dp09rbz4nmpraqcjm9plwn5-frameworkintegration-6.6.0",
+              "default": true
+            },
+            {
+              "name": "devtools",
+              "path": "/nix/store/48d6yyvxms5hzvnz1pbjh9a8amabbmjs-frameworkintegration-6.6.0-devtools"
+            },
+            {
+              "name": "debug",
+              "path": "/nix/store/pd0m2afaa3db6kazsx0gjk58izsvx724-frameworkintegration-6.6.0-debug"
+            },
+            {
+              "name": "dev",
+              "path": "/nix/store/ix381m0456yid4ih565332c36dwsz37d-frameworkintegration-6.6.0-dev"
+            }
+          ],
+          "store_path": "/nix/store/bh1d2zwg0dp09rbz4nmpraqcjm9plwn5-frameworkintegration-6.6.0"
+        },
+        "x86_64-linux": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/sm0wa879w1gm1b0v0vspr23sl58avj8z-frameworkintegration-6.6.0",
+              "default": true
+            },
+            {
+              "name": "debug",
+              "path": "/nix/store/rxlk4ff15dma7wzy13qdfiwv5f5ggks8-frameworkintegration-6.6.0-debug"
+            },
+            {
+              "name": "dev",
+              "path": "/nix/store/lljrkcicb58d9xa343kc1rydgpzy70gr-frameworkintegration-6.6.0-dev"
+            },
+            {
+              "name": "devtools",
+              "path": "/nix/store/2qvmh5l30wgdfdl6wyxmiwkf067ml4c6-frameworkintegration-6.6.0-devtools"
+            }
+          ],
+          "store_path": "/nix/store/sm0wa879w1gm1b0v0vspr23sl58avj8z-frameworkintegration-6.6.0"
+        }
+      }
+    },
+    "kdePackages.kcolorscheme@6.6.0": {
+      "last_modified": "2024-10-08T08:54:18Z",
+      "resolved": "github:NixOS/nixpkgs/a2eacc0c62c0537bd1a7a60c1f91d1f3a59fd013#kdePackages.kcolorscheme",
+      "source": "devbox-search",
+      "version": "6.6.0",
+      "systems": {
+        "aarch64-linux": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/v36gggynh1ajv9cam3kdjvkq1w8cxwl0-kcolorscheme-6.6.0",
+              "default": true
+            },
+            {
+              "name": "debug",
+              "path": "/nix/store/j96vr61jz0hlhbpn9d7y2sgjw0y150j7-kcolorscheme-6.6.0-debug"
+            },
+            {
+              "name": "dev",
+              "path": "/nix/store/f1rpps197bmpx55c5yag86hcyp5a3gv1-kcolorscheme-6.6.0-dev"
+            },
+            {
+              "name": "devtools",
+              "path": "/nix/store/2y5zw8v97drgln5nsmdalc69rfcfy2yn-kcolorscheme-6.6.0-devtools"
+            }
+          ],
+          "store_path": "/nix/store/v36gggynh1ajv9cam3kdjvkq1w8cxwl0-kcolorscheme-6.6.0"
+        },
+        "x86_64-linux": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/4iv5khvygjc2vy0p286amxhy9djl6mgh-kcolorscheme-6.6.0",
+              "default": true
+            },
+            {
+              "name": "debug",
+              "path": "/nix/store/8vksq6m2k8bgpbymj8ylwcgx9mn885hc-kcolorscheme-6.6.0-debug"
+            },
+            {
+              "name": "dev",
+              "path": "/nix/store/2nr10x6rf1g329a8h9m81d5rfx79b6cq-kcolorscheme-6.6.0-dev"
+            },
+            {
+              "name": "devtools",
+              "path": "/nix/store/l6ms1a082dxigbsgdm98jmz7hfzg0zwj-kcolorscheme-6.6.0-devtools"
+            }
+          ],
+          "store_path": "/nix/store/4iv5khvygjc2vy0p286amxhy9djl6mgh-kcolorscheme-6.6.0"
+        }
+      }
+    },
+    "kdePackages.kirigami@6.6.0": {
+      "last_modified": "2024-09-14T17:15:42Z",
+      "resolved": "github:NixOS/nixpkgs/d9d07251f12399413e6d33d5875a6f1994ef75a7#kdePackages.kirigami",
+      "source": "devbox-search",
+      "version": "6.6.0",
+      "systems": {
+        "aarch64-linux": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/2b3nifjla7iyk04c817bd5jjg4scv7aa-kirigami-wrapped-6.6.0",
               "default": true
             }
           ],
-          "store_path": "/nix/store/x2ma19rj5cas4km4b01xmzg99yhlkfk7-qt-full-6.6.2"
+          "store_path": "/nix/store/2b3nifjla7iyk04c817bd5jjg4scv7aa-kirigami-wrapped-6.6.0"
+        },
+        "x86_64-linux": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/g1bk03hrq0fgsby0j2qp17ld8gxa8x8b-kirigami-wrapped-6.6.0",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/g1bk03hrq0fgsby0j2qp17ld8gxa8x8b-kirigami-wrapped-6.6.0"
+        }
+      }
+    },
+    "kdePackages.qqc2-desktop-style@6.6.0": {
+      "last_modified": "2024-10-10T05:33:31Z",
+      "resolved": "github:NixOS/nixpkgs/b69de56fac8c2b6f8fd27f2eca01dcda8e0a4221#kdePackages.qqc2-desktop-style",
+      "source": "devbox-search",
+      "version": "6.6.0",
+      "systems": {
+        "aarch64-linux": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/r7na36cr8yjdij1mnrwbjv17dk44pphy-qqc2-desktop-style-6.6.0",
+              "default": true
+            },
+            {
+              "name": "debug",
+              "path": "/nix/store/lkzr9aj2vv939blx43mbd46dhbwrd0mg-qqc2-desktop-style-6.6.0-debug"
+            },
+            {
+              "name": "dev",
+              "path": "/nix/store/srl5dzmsqd02f0i2pikjdzin2nhvs0bb-qqc2-desktop-style-6.6.0-dev"
+            },
+            {
+              "name": "devtools",
+              "path": "/nix/store/miv5aapzxvb6pb33nymghbzrz0hqvr7k-qqc2-desktop-style-6.6.0-devtools"
+            }
+          ],
+          "store_path": "/nix/store/r7na36cr8yjdij1mnrwbjv17dk44pphy-qqc2-desktop-style-6.6.0"
+        },
+        "x86_64-linux": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/ihjqb6kkwn8mddb3k44ar22a64p9h5pc-qqc2-desktop-style-6.6.0",
+              "default": true
+            },
+            {
+              "name": "devtools",
+              "path": "/nix/store/5bwd962g749jm790v4n6089a7klznw13-qqc2-desktop-style-6.6.0-devtools"
+            },
+            {
+              "name": "debug",
+              "path": "/nix/store/84v90ifvl41ig1pi0g5v5ixlvcgcnvsy-qqc2-desktop-style-6.6.0-debug"
+            },
+            {
+              "name": "dev",
+              "path": "/nix/store/4cqf7z5lzxff9z2mjb0l7q8aqjs8jcgq-qqc2-desktop-style-6.6.0-dev"
+            }
+          ],
+          "store_path": "/nix/store/ihjqb6kkwn8mddb3k44ar22a64p9h5pc-qqc2-desktop-style-6.6.0"
         }
       }
     }

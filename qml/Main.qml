@@ -1,15 +1,17 @@
 import QtQuick
-import QtQuick.Controls
+import QtQuick.Controls as Controls
 import QtQuick.Layouts
-import Qt.labs.settings 1.0
+import org.kde.kirigami as Kirigami
+import QtCore
+import Tr
 
-ApplicationWindow {
+Kirigami.ApplicationWindow {
     id: root
 
-    title: "KPass"
+    title: Tr.i18n("KPass")
+
     width: 900
     height: 600
-    visible: true
 
     property string currentGroup: ""
     property bool databaseOpen: false
@@ -36,129 +38,72 @@ ApplicationWindow {
         settings.recentFiles = files
     }
 
-    function showToast(message) {
-        toastLabel.text = message
-        toast.open()
-    }
+    globalDrawer: drawer
 
-    Drawer {
-        id: groupDrawer
-        edge: Qt.LeftEdge
-        width: Math.min(parent.width * 0.35, 320)
-        visible: false
+    Kirigami.GlobalDrawer {
+        id: drawer
         enabled: databaseOpen
-        modal: true
-        interactive: databaseOpen
+        handleVisible: databaseOpen
+        title: Tr.i18n("Filter")
+        titleIcon: "view-filter"
+        handleClosedIcon.name: "view-filter"
+        handleOpenIcon.name: "view-filter"
+        isMenu: false
 
-        ColumnLayout {
-            anchors.fill: parent
-            anchors.margins: 12
-            spacing: 8
+        Component.onCompleted: updateActions()
 
-            Label {
-                text: "Filter"
-                font.bold: true
-                font.pixelSize: 18
+        property var actionObjects: []
+
+        function updateActions() {
+            for (var j = 0; j < actionObjects.length; ++j) {
+                actionObjects[j].destroy()
             }
+            actionObjects = []
 
-            ListView {
-                id: groupList
-                Layout.fillWidth: true
-                Layout.fillHeight: true
-                clip: true
-                model: groupModel
-                delegate: ItemDelegate {
-                    width: groupList.width
-                    text: model.name
-                    highlighted: root.currentGroup === model.name
-                    onClicked: {
-                        root.currentGroup = model.name
-                        groupDrawer.close()
-                    }
-                }
+            var newActions = []
+
+            var allAction = actionComponent.createObject(drawer, {
+                "text": Tr.i18n("All Entries"),
+                "groupName": "All Entries"
+            })
+            newActions.push(allAction)
+            actionObjects.push(allAction)
+
+            for (var i = 0; i < databaseManager.groups.length; ++i) {
+                var groupName = databaseManager.groups[i]
+                var action = actionComponent.createObject(drawer, {
+                    "text": groupName,
+                    "groupName": groupName
+                })
+                newActions.push(action)
+                actionObjects.push(action)
             }
-        }
-    }
+            drawer.actions = newActions
 
-    ListModel {
-        id: groupModel
-    }
-
-    function rebuildGroupModel() {
-        groupModel.clear()
-        groupModel.append({ name: "All Entries" })
-        for (var i = 0; i < databaseManager.groups.length; ++i) {
-            groupModel.append({ name: databaseManager.groups[i] })
-        }
-        if (root.currentGroup === "") {
-            root.currentGroup = "All Entries"
-        }
-    }
-
-    Connections {
-        target: databaseManager
-        function onGroupsChanged() {
-            rebuildGroupModel()
-        }
-    }
-
-    header: ToolBar {
-        visible: databaseOpen
-        RowLayout {
-            anchors.fill: parent
-            anchors.margins: 4
-            spacing: 8
-
-            ToolButton {
-                text: "Groups"
-                onClicked: groupDrawer.open()
-            }
-
-            Label {
-                Layout.fillWidth: true
-                text: root.currentGroup
-                elide: Text.ElideRight
-                font.bold: true
+            if (root.currentGroup === "") {
+                root.currentGroup = "All Entries"
             }
         }
-    }
 
-    StackView {
-        id: stack
-        anchors.fill: parent
-        initialItem: splashPageComponent
-    }
-
-    Popup {
-        id: toast
-        y: root.height - implicitHeight - 24
-        x: (root.width - width) / 2
-        width: Math.min(root.width - 48, toastLabel.implicitWidth + 32)
-        height: toastLabel.implicitHeight + 24
-        modal: false
-        focus: false
-        closePolicy: Popup.CloseOnEscape
-        padding: 12
-
-        background: Rectangle {
-            radius: 6
-            color: palette.windowText
-            opacity: 0.9
-        }
-
-        contentItem: Label {
-            id: toastLabel
-            color: palette.window
-            wrapMode: Text.WordWrap
-            width: parent.width
-        }
-
-        Timer {
-            interval: 2500
-            running: toast.opened
-            onTriggered: toast.close()
+        Connections {
+            target: databaseManager
+            function onGroupsChanged() { drawer.updateActions() }
         }
     }
+
+    Component {
+        id: actionComponent
+        Kirigami.Action {
+            property string groupName
+            text: groupName
+            icon.name: "folder"
+            checkable: true
+            checked: root.currentGroup === text
+            onTriggered: root.currentGroup = text
+        }
+    }
+
+    pageStack.initialPage: splashPageComponent.createObject(pageStack)
 
     Component {
         id: splashPageComponent
@@ -169,14 +114,13 @@ ApplicationWindow {
                 if (databaseManager.openDatabase(url, password)) {
                     root.addRecentFile(url)
                     root.databaseOpen = true
-                    rebuildGroupModel()
-                    stack.replace(entriesPageComponent, { databasePath: url })
+                    pageStack.replace(entriesPageComponent.createObject(pageStack, { databasePath: url }))
                 } else {
                     var error = databaseManager.lastError
                     if (error === "") {
-                        error = "Failed to open database. Please check your password."
+                        error = Tr.i18n("Failed to open database. Please check your password.")
                     }
-                    root.showToast("Error: " + error)
+                    showPassiveNotification(Tr.i18n("Error: %1", error))
                 }
             }
         }
@@ -187,34 +131,34 @@ ApplicationWindow {
         EntriesPage {
             currentGroup: root.currentGroup
             entries: databaseManager.entries
-            onNotify: function(message) { root.showToast(message) }
 
             onEntrySelected: function(index, entryData) {
-                stack.push(detailsPageComponent, {
+                pageStack.push(detailsPageComponent.createObject(pageStack, {
                     entryIndex: index,
                     entryTitle: entryData.title,
                     entryUsername: entryData.username,
                     entryPassword: entryData.password,
                     entryUrl: entryData.url,
-                    entryNotes: entryData.notes
-                })
+                    entryNotes: entryData.notes,
+                    entryIcon: entryData.icon
+                }))
             }
 
             onAddEntryRequested: {
-                root.showToast("Add new entry is not implemented yet")
+                showPassiveNotification(Tr.i18n("Add new entry dialog would open here"))
             }
 
             onSaveDatabaseRequested: {
                 databaseManager.saveDatabase()
-                root.showToast("Database saved")
+                showPassiveNotification(Tr.i18n("Database saved"))
             }
 
             onCloseDatabaseRequested: {
                 databaseManager.closeDatabase()
                 root.currentGroup = ""
                 root.databaseOpen = false
-                stack.replace(splashPageComponent)
-                root.showToast("Database closed")
+                pageStack.replace(splashPageComponent.createObject(pageStack))
+                showPassiveNotification(Tr.i18n("Database closed"))
             }
         }
     }
@@ -222,19 +166,19 @@ ApplicationWindow {
     Component {
         id: detailsPageComponent
         DetailsPage {
-            onNotify: function(message) { root.showToast(message) }
-
             onEntryUpdated: function(index, title, username, password, url, notes) {
                 databaseManager.updateEntry(index, title, username, password, url, notes)
             }
 
             onEntryDeleted: function(index) {
                 databaseManager.deleteEntry(index)
-                stack.pop()
-                root.showToast("Entry deleted")
+                pageStack.pop()
+                showPassiveNotification(Tr.i18n("Entry deleted"))
             }
 
-            onGoBackRequested: stack.pop()
+            onGoBackRequested: {
+                pageStack.pop()
+            }
         }
     }
 }

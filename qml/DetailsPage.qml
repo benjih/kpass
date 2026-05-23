@@ -1,9 +1,18 @@
 import QtQuick
-import QtQuick.Controls
+import QtQuick.Controls as Controls
 import QtQuick.Layouts
+import org.kde.kirigami as Kirigami
+import org.kde.kirigami.layouts as KirigamiLayouts
+import org.kde.kirigami.primitives as KirigamiPrimitives
+import Tr
 
-Item {
+Kirigami.ScrollablePage {
     id: detailsPage
+
+    leftPadding: Kirigami.Units.gridUnit * 2
+    rightPadding: Kirigami.Units.gridUnit * 2
+    topPadding: Kirigami.Units.gridUnit * 2
+    bottomPadding: Kirigami.Units.gridUnit * 2
 
     property int entryIndex: -1
     property string entryTitle
@@ -11,168 +20,171 @@ Item {
     property string entryPassword
     property string entryUrl
     property string entryNotes
+    property string entryIcon
     property bool isEditing: false
 
-    signal entryUpdated(int entryIdx, string newTitle, string newUsername,
-                        string newPassword, string newUrl, string newNotes)
+    signal entryUpdated(int entryIdx, string newTitle, string newUsername, string newPassword, string newUrl, string newNotes)
     signal entryDeleted(int entryIdx)
     signal goBackRequested()
-    signal notify(string message)
 
-    function toast(message) {
-        notify(message)
-    }
+    title: entryTitle
 
-    ColumnLayout {
-        anchors.fill: parent
-        spacing: 0
-
-        ToolBar {
-            Layout.fillWidth: true
-            RowLayout {
-                anchors.fill: parent
-                spacing: 8
-
-                ToolButton {
-                    text: "Back"
-                    onClicked: detailsPage.goBackRequested()
+    actions: [
+        Kirigami.Action {
+            text: detailsPage.isEditing ? Tr.i18n("Save") : Tr.i18n("Edit")
+            icon.name: detailsPage.isEditing ? "document-save" : "edit-entry"
+            displayHint: Kirigami.DisplayHint.KeepVisible
+            onTriggered: {
+                if (detailsPage.isEditing) {
+                    detailsPage.entryUpdated(
+                        detailsPage.entryIndex,
+                        titleField.text,
+                        usernameField.text,
+                        passwordFieldInDetails.text,
+                        urlField.text,
+                        notesField.text
+                    )
+                    showPassiveNotification(Tr.i18n("Entry updated in memory"))
                 }
-
-                Label {
-                    text: detailsPage.entryTitle
-                    font.bold: true
-                    Layout.fillWidth: true
-                    elide: Text.ElideRight
-                }
-
-                ToolButton {
-                    text: detailsPage.isEditing ? "Save" : "Edit"
-                    onClicked: {
-                        if (detailsPage.isEditing) {
-                            detailsPage.entryUpdated(
-                                detailsPage.entryIndex,
-                                titleField.text,
-                                usernameField.text,
-                                passwordFieldInDetails.text,
-                                urlField.text,
-                                notesField.text
-                            )
-                            detailsPage.toast("Entry updated")
-                        }
-                        detailsPage.isEditing = !detailsPage.isEditing
-                    }
-                }
-
-                ToolButton {
-                    text: "Delete"
-                    onClicked: deleteDialog.open()
-                }
+                detailsPage.isEditing = !detailsPage.isEditing
             }
-        }
-
-        ScrollView {
-            Layout.fillWidth: true
-            Layout.fillHeight: true
-            Layout.margins: 16
-
-            ColumnLayout {
-                width: parent.width
-                spacing: 12
-
-                Label {
-                    text: "Credentials"
-                    font.bold: true
-                }
-
-                Label { text: "Title:" }
-                TextField {
-                    id: titleField
-                    text: entryTitle
-                    readOnly: !detailsPage.isEditing
-                    Layout.fillWidth: true
-                }
-
-                Label { text: "Username:" }
-                RowLayout {
-                    Layout.fillWidth: true
-                    TextField {
-                        id: usernameField
-                        text: entryUsername
-                        readOnly: !detailsPage.isEditing
-                        Layout.fillWidth: true
-                    }
-                    ToolButton {
-                        text: "Copy"
-                        onClicked: {
-                            databaseManager.copyToClipboard(entryUsername)
-                            detailsPage.toast("Username copied")
-                        }
-                    }
-                }
-
-                Label { text: "Password:" }
-                RowLayout {
-                    Layout.fillWidth: true
-                    TextField {
-                        id: passwordFieldInDetails
-                        text: entryPassword
-                        echoMode: TextInput.Password
-                        readOnly: !detailsPage.isEditing
-                        Layout.fillWidth: true
-                    }
-                    ToolButton {
-                        text: "Copy"
-                        onClicked: {
-                            databaseManager.copyToClipboard(entryPassword)
-                            detailsPage.toast("Password copied")
-                        }
-                    }
-                    ToolButton {
-                        text: passwordFieldInDetails.echoMode === TextInput.Password ? "Show" : "Hide"
-                        onClicked: passwordFieldInDetails.echoMode =
-                            passwordFieldInDetails.echoMode === TextInput.Password
-                            ? TextInput.Normal : TextInput.Password
-                    }
-                }
-
-                Label { text: "URL:" }
-                TextField {
-                    id: urlField
-                    text: entryUrl
-                    placeholderText: "https://example.com"
-                    readOnly: !detailsPage.isEditing
-                    Layout.fillWidth: true
-                }
-
-                Label {
-                    text: "Notes"
-                    font.bold: true
-                    Layout.topMargin: 8
-                }
-
-                TextArea {
-                    id: notesField
-                    text: entryNotes
-                    placeholderText: "Enter notes here..."
-                    readOnly: !detailsPage.isEditing
-                    Layout.fillWidth: true
-                    Layout.minimumHeight: 120
-                }
+        },
+        Kirigami.Action {
+            text: Tr.i18n("Cancel")
+            icon.name: "dialog-cancel"
+            visible: detailsPage.isEditing
+            onTriggered: {
+                detailsPage.isEditing = false
+                titleField.text = detailsPage.entryTitle
+                usernameField.text = detailsPage.entryUsername
+                passwordFieldInDetails.text = detailsPage.entryPassword
+                urlField.text = detailsPage.entryUrl
+                notesField.text = detailsPage.entryNotes
             }
+        },
+        Kirigami.Action {
+            text: Tr.i18n("Delete")
+            icon.name: "edit-delete"
+            onTriggered: deleteDialog.open()
+        },
+        Kirigami.Action {
+            text: Tr.i18n("Back")
+            icon.name: "go-previous"
+            onTriggered: detailsPage.goBackRequested()
         }
-    }
+    ]
 
-    Dialog {
+    Controls.Dialog {
         id: deleteDialog
-        title: "Delete Entry"
-        anchors.centerIn: parent
+        parent: Controls.Overlay.overlay
+        title: Tr.i18n("Delete Entry")
         modal: true
-        standardButtons: Dialog.Yes | Dialog.No
+        width: Kirigami.Units.gridUnit * 24
+        standardButtons: Controls.Dialog.Yes | Controls.Dialog.No
 
-        Label {
-            text: "Are you sure you want to delete '" + detailsPage.entryTitle + "'?"
+        contentItem: Controls.Label {
+            text: Tr.i18n("Are you sure you want to delete '%1'?", detailsPage.entryTitle)
+            wrapMode: Text.WordWrap
+            width: parent.width
         }
 
-        onAccepted: detailsPage.entryDeleted(detailsPage.entryIndex)
+        onAccepted: {
+            detailsPage.entryDeleted(detailsPage.entryIndex)
+        }
+    }
+
+    KirigamiLayouts.FormLayout {
+        id: formLayout
+        width: parent.width
+
+        KirigamiPrimitives.Separator {
+            KirigamiLayouts.FormData.isSection: true
+            KirigamiLayouts.FormData.label: Tr.i18n("Credentials")
+        }
+
+        Controls.TextField {
+            id: titleField
+            KirigamiLayouts.FormData.label: Tr.i18n("Title:")
+            text: entryTitle
+            readOnly: !detailsPage.isEditing
+            Layout.fillWidth: true
+        }
+
+        RowLayout {
+            KirigamiLayouts.FormData.label: Tr.i18n("Username:")
+            Layout.fillWidth: true
+            spacing: Kirigami.Units.smallSpacing
+
+            Controls.TextField {
+                id: usernameField
+                text: entryUsername
+                readOnly: !detailsPage.isEditing
+                Layout.fillWidth: true
+            }
+
+            Controls.ToolButton {
+                icon.name: "edit-copy"
+                onClicked: {
+                    databaseManager.copyToClipboard(entryUsername)
+                    showPassiveNotification(Tr.i18n("Username copied"))
+                }
+            }
+        }
+
+        RowLayout {
+            KirigamiLayouts.FormData.label: Tr.i18n("Password:")
+            Layout.fillWidth: true
+            spacing: Kirigami.Units.smallSpacing
+
+            Controls.TextField {
+                id: passwordFieldInDetails
+                text: entryPassword
+                echoMode: TextInput.Password
+                readOnly: !detailsPage.isEditing
+                Layout.fillWidth: true
+            }
+
+            Controls.ToolButton {
+                icon.name: "edit-copy"
+                onClicked: {
+                    databaseManager.copyToClipboard(entryPassword)
+                    showPassiveNotification(Tr.i18n("Password copied"))
+                }
+            }
+
+            Controls.ToolButton {
+                icon.name: passwordFieldInDetails.echoMode === TextInput.Password ? "password-show-on" : "password-hide-on"
+                checkable: true
+                onCheckedChanged: passwordFieldInDetails.echoMode = checked ? TextInput.Normal : TextInput.Password
+            }
+        }
+
+        Controls.TextField {
+            id: urlField
+            KirigamiLayouts.FormData.label: Tr.i18n("URL:")
+            text: entryUrl
+            placeholderText: "https://example.com"
+            readOnly: !detailsPage.isEditing
+            Layout.fillWidth: true
+        }
+
+        KirigamiPrimitives.Separator {
+            KirigamiLayouts.FormData.isSection: true
+            KirigamiLayouts.FormData.label: Tr.i18n("Additional Info")
+        }
+
+        Controls.TextArea {
+            id: notesField
+            KirigamiLayouts.FormData.label: Tr.i18n("Notes:")
+            text: entryNotes
+            placeholderText: Tr.i18n("Enter notes here...")
+            readOnly: !detailsPage.isEditing
+            Layout.fillWidth: true
+            Layout.minimumHeight: Kirigami.Units.gridUnit * 10
+        }
+
+        Item {
+            KirigamiLayouts.FormData.isSection: true
+        }
     }
 }

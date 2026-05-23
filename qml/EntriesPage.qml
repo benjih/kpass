@@ -1,8 +1,11 @@
 import QtQuick
-import QtQuick.Controls
+import QtQuick.Controls as Controls
 import QtQuick.Layouts
+import org.kde.kirigami as Kirigami
+import org.kde.kirigami.primitives as KirigamiPrimitives
+import Tr
 
-Item {
+Kirigami.ScrollablePage {
     id: entriesPage
 
     property string databasePath
@@ -13,137 +16,159 @@ Item {
     signal addEntryRequested()
     signal saveDatabaseRequested()
     signal closeDatabaseRequested()
-    signal notify(string message)
 
-    function toast(message) {
-        notify(message)
-    }
+    title: currentGroup
 
-    ColumnLayout {
-        anchors.fill: parent
-        spacing: 0
-
-        RowLayout {
-            Layout.fillWidth: true
-            Layout.margins: 8
-            spacing: 8
-
-            TextField {
-                id: searchField
-                Layout.fillWidth: true
-                placeholderText: "Search entries..."
-            }
-
-            ToolButton {
-                text: "Save"
-                onClicked: entriesPage.saveDatabaseRequested()
-            }
-
-            ToolButton {
-                text: "Close"
-                onClicked: entriesPage.closeDatabaseRequested()
-            }
+    // Primary action stays in the toolbar; others overflow (like KF5 actions.main / contextualActions).
+    actions: [
+        Kirigami.Action {
+            icon.name: "list-add"
+            text: Tr.i18n("Add Entry")
+            displayHint: Kirigami.DisplayHint.KeepVisible
+            onTriggered: entriesPage.addEntryRequested()
+        },
+        Kirigami.Action {
+            icon.name: "search"
+            text: Tr.i18n("Search")
+            shortcut: StandardKey.Find
+            onTriggered: searchField.forceActiveFocus()
+        },
+        Kirigami.Action {
+            icon.name: "document-save"
+            text: Tr.i18n("Save Database")
+            shortcut: StandardKey.Save
+            onTriggered: entriesPage.saveDatabaseRequested()
+        },
+        Kirigami.Action {
+            icon.name: "document-close"
+            text: Tr.i18n("Close Database")
+            onTriggered: entriesPage.closeDatabaseRequested()
         }
+    ]
 
-        Label {
-            text: entriesPage.visibleCount + " items found"
-            Layout.leftMargin: 12
-            Layout.bottomMargin: 4
-            visible: entriesPage.visibleCount > 0
-        }
-
-        ListView {
-            id: listView
-            Layout.fillWidth: true
-            Layout.fillHeight: true
-            clip: true
-            model: entriesPage.entries
-
-            delegate: ItemDelegate {
-                id: delegate
-                width: listView.width
-                visible: {
-                    var inGroup = entriesPage.currentGroup === ""
-                            || entriesPage.currentGroup === "All Entries"
-                            || modelData.group === entriesPage.currentGroup
-                    var q = searchField.text.toLowerCase()
-                    var matchesSearch = q === ""
-                            || modelData.title.toLowerCase().indexOf(q) !== -1
-                            || modelData.username.toLowerCase().indexOf(q) !== -1
-                    return inGroup && matchesSearch
-                }
-                height: visible ? implicitHeight : 0
-
-                function openDetails() {
-                    entriesPage.entrySelected(index, {
-                        title: modelData.title,
-                        username: modelData.username,
-                        password: modelData.password,
-                        url: modelData.url,
-                        notes: modelData.notes
-                    })
-                }
-
-                contentItem: RowLayout {
-                    spacing: 12
-                    implicitHeight: 48
-
-                    ColumnLayout {
-                        Layout.fillWidth: true
-                        spacing: 0
-                        Label {
-                            text: modelData.title
-                            elide: Text.ElideRight
-                            font.bold: true
-                            Layout.fillWidth: true
-                        }
-                        Label {
-                            text: modelData.username
-                            elide: Text.ElideRight
-                            color: palette.placeholderText
-                            Layout.fillWidth: true
-                        }
-                    }
-
-                    ToolButton {
-                        text: "User"
-                        onClicked: {
-                            databaseManager.copyToClipboard(modelData.username)
-                            entriesPage.toast("Username copied")
-                        }
-                    }
-
-                    ToolButton {
-                        text: "Pass"
-                        onClicked: {
-                            databaseManager.copyToClipboard(modelData.password)
-                            entriesPage.toast("Password copied")
-                        }
-                    }
-                }
-
-                onClicked: {
-                    listView.currentIndex = index
-                    openDetails()
-                }
-            }
-        }
-    }
-
-    readonly property int visibleCount: {
+    property int visibleCount: {
         var count = 0
         for (var i = 0; i < entries.length; ++i) {
             var entry = entries[i]
-            var inGroup = currentGroup === "" || currentGroup === "All Entries"
-                    || entry.group === currentGroup
-            var q = searchField.text.toLowerCase()
-            var matchesSearch = q === ""
-                    || entry.title.toLowerCase().indexOf(q) !== -1
-                    || entry.username.toLowerCase().indexOf(q) !== -1
+            var inGroup = currentGroup === "" || currentGroup === "All Entries" || entry["group"] === currentGroup
+            var matchesSearch = searchField.text === ""
+                    || entry.title.toLowerCase().indexOf(searchField.text.toLowerCase()) !== -1
+                    || entry.username.toLowerCase().indexOf(searchField.text.toLowerCase()) !== -1
             if (inGroup && matchesSearch) {
                 count++
             }
         }
         return count
+    }
+
+    header: ColumnLayout {
+        spacing: 0
+        Kirigami.SearchField {
+            id: searchField
+            Layout.fillWidth: true
+            Layout.leftMargin: Kirigami.Units.smallSpacing
+            Layout.rightMargin: Kirigami.Units.smallSpacing
+            Layout.topMargin: Kirigami.Units.smallSpacing
+            placeholderText: Tr.i18n("Search entries...")
+        }
+        Kirigami.Heading {
+            text: Tr.i18n("%1 items found", entriesPage.visibleCount)
+            level: 3
+            visible: entriesPage.visibleCount > 0
+            Layout.fillWidth: true
+            padding: Kirigami.Units.largeSpacing
+        }
+    }
+
+    ListView {
+        id: listView
+        model: entriesPage.entries
+        delegate: Kirigami.SwipeListItem {
+            id: delegate
+            visible: {
+                var inGroup = entriesPage.currentGroup === "" || entriesPage.currentGroup === "All Entries" || modelData["group"] === entriesPage.currentGroup
+                var matchesSearch = searchField.text === ""
+                        || modelData.title.toLowerCase().indexOf(searchField.text.toLowerCase()) !== -1
+                        || modelData.username.toLowerCase().indexOf(searchField.text.toLowerCase()) !== -1
+                return inGroup && matchesSearch
+            }
+            height: visible ? implicitHeight : 0
+            highlighted: ListView.isCurrentItem
+
+            function openDetails() {
+                entriesPage.entrySelected(index, {
+                    title: modelData.title,
+                    username: modelData.username,
+                    password: modelData.password,
+                    url: modelData.url,
+                    notes: modelData.notes,
+                    icon: "key-enter"
+                })
+            }
+
+            contentItem: RowLayout {
+                spacing: Kirigami.Units.smallSpacing
+                implicitHeight: Kirigami.Units.gridUnit * 3
+
+                KirigamiPrimitives.Icon {
+                    source: "key-enter"
+                    Layout.preferredWidth: Kirigami.Units.iconSizes.small
+                    Layout.preferredHeight: Kirigami.Units.iconSizes.small
+                    Layout.leftMargin: Kirigami.Units.largeSpacing
+                }
+
+                ColumnLayout {
+                    Layout.fillWidth: true
+                    spacing: 0
+                    Controls.Label {
+                        text: modelData.title
+                        elide: Text.ElideRight
+                        font.bold: true
+                        Layout.fillWidth: true
+                    }
+                    Controls.Label {
+                        text: modelData.username
+                        elide: Text.ElideRight
+                        color: Kirigami.Theme.disabledTextColor
+                        Layout.fillWidth: true
+                    }
+                }
+
+                Item {
+                    Layout.preferredWidth: Kirigami.Units.largeSpacing
+                }
+            }
+
+            actions: [
+                Kirigami.Action {
+                    icon.name: "user-identity"
+                    tooltip: Tr.i18n("Copy Username")
+                    onTriggered: {
+                        databaseManager.copyToClipboard(modelData.username)
+                        showPassiveNotification(Tr.i18n("Username copied"))
+                    }
+                },
+                Kirigami.Action {
+                    icon.name: "edit-copy"
+                    tooltip: Tr.i18n("Copy Password")
+                    onTriggered: {
+                        databaseManager.copyToClipboard(modelData.password)
+                        showPassiveNotification(Tr.i18n("Password copied"))
+                    }
+                },
+                Kirigami.Action {
+                    icon.name: "entry-details"
+                    tooltip: Tr.i18n("View Details")
+                    onTriggered: {
+                        listView.currentIndex = index
+                        delegate.openDetails()
+                    }
+                }
+            ]
+            onClicked: {
+                listView.currentIndex = index
+                openDetails()
+            }
+        }
     }
 }

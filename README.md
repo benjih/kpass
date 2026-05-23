@@ -26,8 +26,20 @@ make run        # or: go run .
 
 Use `QT_QUICK_BACKEND=software` if the GPU backend fails (already set in the Makefile `run` target).
 
+## KDE / Kirigami
+
+Devbox includes Kirigami, Breeze icons, and Breeze desktop QQC2 style (pinned to **6.6.0**). Those packages pull in **Qt 6.7**; do not add `qt6.full` (Qt 6.6) or you will get “incompatible Qt library” errors from KDE QML plugins.
+
+`scripts/kde-env.sh` points `PKG_CONFIG_PATH` and `LD_LIBRARY_PATH` at Qt 6.7 for `go build` / `go run`, sets `QML2_IMPORT_PATH`, and `QT_QUICK_CONTROLS_STYLE=org.kde.desktop`.
+
+After changing Qt packages, run: `go clean -cache && make build`.
+
+User-visible strings use the `Tr` QML singleton (`Tr.i18n`) instead of KI18n.
+
+QML is the original `kpass-c` Kirigami UI with Qt 6 import syntax and a Qt 6 `FileDialog` on the splash screen.
+
 ## Notes
 
-- QML uses **Qt Quick Controls**, not Kirigami (Kirigami is not in the devbox Qt package). Behavior matches `kpass-c` where possible.
 - Run from the project directory so `qml/Main.qml` resolves.
 - `bridge/moc_databasemanager.cpp` is generated locally and gitignored.
+- Use `devbox run make build` so KDE paths and CGO flags are set.

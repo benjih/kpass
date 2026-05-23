@@ -1,12 +1,16 @@
 {
-  "$schema":  "https://raw.githubusercontent.com/jetify-com/devbox/0.17.0/.schema/devbox.schema.json",
+  "$schema": "https://raw.githubusercontent.com/jetify-com/devbox/0.17.0/.schema/devbox.schema.json",
   "packages": [
     "go@latest",
-    "qt6.full@latest"
+    "kdePackages.kirigami@6.6.0",
+    "kdePackages.qqc2-desktop-style@6.6.0",
+    "kdePackages.breeze-icons@6.6.0",
+    "kdePackages.kcolorscheme@6.6.0",
+    "kdePackages.frameworkintegration@6.6.0"
   ],
   "shell": {
     "init_hook": [
-      "echo 'Welcome to devbox!' > /dev/null"
+      ". \"${DEVBOX_PROJECT_ROOT}/scripts/kde-env.sh\""
     ],
     "scripts": {
       "test": [

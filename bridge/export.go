@@ -127,3 +127,4 @@ func NewDatabaseManager() *qt6.QObject {
 	ptr := C.newDatabaseManager(nil)
 	return qt6.UnsafeNewQObject(unsafe.Pointer(ptr))
 }
+
