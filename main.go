@@ -1,43 +1,38 @@
 package main
 
 import (
-	"fmt"
 	"os"
+	"path/filepath"
 
+	"github.com/benjih/kpass/bridge"
 	qt "github.com/mappu/miqt/qt6"
 	"github.com/mappu/miqt/qt6/qml"
 )
 
 func main() {
 	qt.NewQApplication(os.Args)
+	qt.QCoreApplication_SetApplicationName("KPass")
+	qt.QCoreApplication_SetOrganizationName("KPass")
 
 	engine := qml.NewQQmlApplicationEngine()
+	engine.RootContext().SetContextProperty("databaseManager", bridge.NewDatabaseManager())
 
-	url := qt.QUrl_FromLocalFile("main.qml")
+	qmlDir := filepath.Join(projectRoot(), "qml")
+	mainQML := filepath.Join(qmlDir, "Main.qml")
+	engine.AddImportPath(qmlDir)
+	engine.Load(qt.QUrl_FromLocalFile(mainQML))
 
-	model := qt.NewQAbstractListModel()
-
-	model.OnRowCount(func(parent *qt.QModelIndex) int {
-		return 1000
-	})
-
-	model.OnData(func(idx *qt.QModelIndex, role int) *qt.QVariant {
-		if !idx.IsValid() {
-			return qt.NewQVariant()
-		}
-
-		switch qt.ItemDataRole(role) {
-		case qt.DisplayRole:
-			return qt.NewQVariant14(fmt.Sprintf("this is row %d", idx.Row()))
-
-		default:
-			return qt.NewQVariant()
-		}
-	})
-
-	engine.RootContext().SetContextProperty("myModel", model.QObject)
-
-	engine.Load(url)
+	if len(engine.RootObjects()) == 0 {
+		os.Exit(1)
+	}
 
 	qt.QApplication_Exec()
+}
+
+func projectRoot() string {
+	wd, err := os.Getwd()
+	if err != nil {
+		return "."
+	}
+	return wd
 }
