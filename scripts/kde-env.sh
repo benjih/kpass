@@ -63,6 +63,30 @@ kde_qml_paths() {
   printf '%s' "$paths"
 }
 
+kde_plugin_paths() {
+  local paths=""
+  append_if_exists() {
+    local p="$1"
+    if [ -d "$p" ]; then
+      case ":${paths}:" in
+        *:"$p":*) ;;
+        *) paths="${paths:+$paths:}$p" ;;
+      esac
+    fi
+  }
+
+  append_if_exists "${DEVBOX_PROJECT_ROOT:-.}/.devbox/nix/profile/default/lib/qt-6/plugins"
+  if [ -n "$QTBASE" ]; then
+    append_if_exists "$QTBASE/lib/qt-6/plugins"
+  fi
+  if command -v nix-store >/dev/null 2>&1; then
+    while IFS= read -r store; do
+      append_if_exists "$store/lib/qt-6/plugins"
+    done < <(profile_store_paths)
+  fi
+  printf '%s' "$paths"
+}
+
 export QML2_IMPORT_PATH="$(kde_qml_paths)"
 export QT_QUICK_CONTROLS_STYLE="${QT_QUICK_CONTROLS_STYLE:-org.kde.desktop}"
 export XDG_ICON_THEME="${XDG_ICON_THEME:-breeze}"
@@ -77,16 +101,16 @@ if [ -d "$PROFILE/share" ]; then
   export KPASS_ICON_PROFILE="$PROFILE/share"
 fi
 
-if [ -d "$PROFILE/lib/qt-6/plugins" ]; then
-  case ":${QT_PLUGIN_PATH:-}:" in
-    *:"$PROFILE/lib/qt-6/plugins":*) ;;
-    *) export QT_PLUGIN_PATH="$PROFILE/lib/qt-6/plugins${QT_PLUGIN_PATH:+:$QT_PLUGIN_PATH}" ;;
-  esac
+# KIconEnginePlugin (kiconthemes) and FrameworkIntegrationPlugin live in the nix
+# closure but not under the profile's sparse plugins/ tree; include all plugin dirs.
+KDE_PLUGINS="$(kde_plugin_paths)"
+if [ -n "$KDE_PLUGINS" ]; then
+  export QT_PLUGIN_PATH="$KDE_PLUGINS${QT_PLUGIN_PATH:+:$QT_PLUGIN_PATH}"
 fi
 
 # Prefer KDE platform integration when available (matches Plasma apps).
-if [ -z "${QT_QPA_PLATFORMTHEME:-}" ] && [ -d "$PROFILE/lib/qt-6/plugins/platformthemes" ]; then
-  export QT_QPA_PLATFORMTHEME="${QT_QPA_PLATFORMTHEME:-kde}"
+if [ -z "${QT_QPA_PLATFORMTHEME:-}" ] && [ -n "$(find_store 'frameworkintegration-6\.[0-9.]+$')" ]; then
+  export QT_QPA_PLATFORMTHEME=kde
 fi
 
 # miqt pulls many Qt headers into separate CGO objects; allow duplicate weak Qt template symbols at link.

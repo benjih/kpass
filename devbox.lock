@@ -209,6 +209,58 @@
         }
       }
     },
+    "kdePackages.kiconthemes@6.6.0": {
+      "last_modified": "2024-10-09T11:07:23Z",
+      "resolved": "github:NixOS/nixpkgs/4fa56ac6d86a213b556d4db9b1cb43a51b3e40ec#kdePackages.kiconthemes",
+      "source": "devbox-search",
+      "version": "6.6.0",
+      "systems": {
+        "aarch64-linux": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/bzx1knkhriqk7q736z0b0lgyzss2936p-kiconthemes-6.6.0",
+              "default": true
+            },
+            {
+              "name": "devtools",
+              "path": "/nix/store/lg5mmmarvzlal6wbs733fm51dyzmmh8i-kiconthemes-6.6.0-devtools"
+            },
+            {
+              "name": "debug",
+              "path": "/nix/store/kbwlrfb01ifsjxky5v5s8ib76icz9adv-kiconthemes-6.6.0-debug"
+            },
+            {
+              "name": "dev",
+              "path": "/nix/store/88160jwwic97bx7xvhn79z6v2b3x5dy5-kiconthemes-6.6.0-dev"
+            }
+          ],
+          "store_path": "/nix/store/bzx1knkhriqk7q736z0b0lgyzss2936p-kiconthemes-6.6.0"
+        },
+        "x86_64-linux": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/c2mbjaj5q5gdmf9m2i29qwhy06l3v26p-kiconthemes-6.6.0",
+              "default": true
+            },
+            {
+              "name": "debug",
+              "path": "/nix/store/ynifs0zgvks39xsaly88s7mk40gwzkjx-kiconthemes-6.6.0-debug"
+            },
+            {
+              "name": "dev",
+              "path": "/nix/store/d0iwm9nk4fg6fprxpp171hzqr5vrcjqr-kiconthemes-6.6.0-dev"
+            },
+            {
+              "name": "devtools",
+              "path": "/nix/store/fif0gnacam4k2r11jlr9y3yd16axhyl4-kiconthemes-6.6.0-devtools"
+            }
+          ],
+          "store_path": "/nix/store/c2mbjaj5q5gdmf9m2i29qwhy06l3v26p-kiconthemes-6.6.0"
+        }
+      }
+    },
     "kdePackages.kirigami@6.6.0": {
       "last_modified": "2024-09-14T17:15:42Z",
       "resolved": "github:NixOS/nixpkgs/d9d07251f12399413e6d33d5875a6f1994ef75a7#kdePackages.kirigami",

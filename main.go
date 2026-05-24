@@ -2,6 +2,7 @@ package main
 
 import (
 	"os"
+	"os/exec"
 	"path/filepath"
 	"strings"
 
@@ -9,6 +10,11 @@ import (
 	qt "github.com/mappu/miqt/qt6"
 	"github.com/mappu/miqt/qt6/qml"
 )
+
+func init() {
+	// Qt reads QT_PLUGIN_PATH and XDG_DATA_DIRS before QApplication starts.
+	setupRuntimeEnvironment()
+}
 
 func main() {
 	qt.NewQApplication(os.Args)
@@ -38,6 +44,116 @@ func main() {
 	}
 
 	qt.QApplication_Exec()
+}
+
+// setupRuntimeEnvironment ensures icon and KDE plugin paths are visible when the
+// app is launched outside devbox shell (e.g. from an IDE) without kde-env.sh.
+func setupRuntimeEnvironment() {
+	pluginPaths := kdePluginPaths()
+	augmentEnvPath("XDG_DATA_DIRS", iconSharePaths()...)
+	augmentEnvPath("QT_PLUGIN_PATH", pluginPaths...)
+
+	if os.Getenv("QT_QPA_PLATFORMTHEME") == "" && len(pluginPaths) > 0 {
+		os.Setenv("QT_QPA_PLATFORMTHEME", "kde")
+	}
+	if os.Getenv("XDG_ICON_THEME") == "" {
+		os.Setenv("XDG_ICON_THEME", "breeze")
+	}
+	if os.Getenv("QT_QUICK_CONTROLS_STYLE") == "" {
+		os.Setenv("QT_QUICK_CONTROLS_STYLE", "org.kde.desktop")
+	}
+}
+
+func augmentEnvPath(key string, paths ...string) {
+	if len(paths) == 0 {
+		return
+	}
+
+	seen := map[string]bool{}
+	var merged []string
+	add := func(p string) {
+		if p == "" || seen[p] {
+			return
+		}
+		info, err := os.Stat(p)
+		if err != nil || !info.IsDir() {
+			return
+		}
+		seen[p] = true
+		merged = append(merged, p)
+	}
+
+	for _, p := range paths {
+		add(p)
+	}
+	for _, p := range strings.Split(os.Getenv(key), ":") {
+		add(p)
+	}
+	if len(merged) > 0 {
+		os.Setenv(key, strings.Join(merged, ":"))
+	}
+}
+
+func kdePluginPaths() []string {
+	root := projectRoot()
+	profile := filepath.Join(root, ".devbox/nix/profile/default")
+
+	var paths []string
+	addPlugins := func(base string) {
+		p := filepath.Join(base, "lib", "qt-6", "plugins")
+		if info, err := os.Stat(p); err == nil && info.IsDir() {
+			paths = append(paths, p)
+		}
+	}
+
+	addPlugins(profile)
+	for _, store := range nixClosurePaths(profile) {
+		addPlugins(store)
+	}
+	return paths
+}
+
+func iconSharePaths() []string {
+	var paths []string
+	seen := map[string]bool{}
+	add := func(share string) {
+		if share == "" || seen[share] {
+			return
+		}
+		if info, err := os.Stat(share); err == nil && info.IsDir() {
+			seen[share] = true
+			paths = append(paths, share)
+		}
+	}
+
+	if profile := os.Getenv("KPASS_ICON_PROFILE"); profile != "" {
+		add(profile)
+	}
+	add(filepath.Join(projectRoot(), ".devbox/nix/profile/default/share"))
+
+	for _, dir := range strings.Split(os.Getenv("XDG_DATA_DIRS"), ":") {
+		add(dir)
+	}
+	return paths
+}
+
+func nixClosurePaths(profile string) []string {
+	if _, err := os.Stat(profile); err != nil {
+		return nil
+	}
+	out, err := exec.Command("nix-store", "-qR", profile).Output()
+	if err != nil {
+		return nil
+	}
+
+	var paths []string
+	for _, line := range strings.Split(string(out), "\n") {
+		line = strings.TrimSpace(line)
+		if line != "" {
+			paths = append(paths, line)
+		}
+	}
+	return paths
 }
 
 // setupKDEAppearance mirrors kpass-c/src/main.cpp so QSettings, icons, and QQC2 match KDE apps.
@@ -86,9 +202,16 @@ func iconThemeSearchPaths() []string {
 }
 
 func projectRoot() string {
-	wd, err := os.Getwd()
-	if err != nil {
-		return "."
+	if exe, err := os.Executable(); err == nil {
+		root := filepath.Dir(exe)
+		if !strings.Contains(root, "go-build") {
+			if _, err := os.Stat(filepath.Join(root, "qml", "Main.qml")); err == nil {
+				return root
+			}
+		}
 	}
-	return wd
+	if wd, err := os.Getwd(); err == nil {
+		return wd
+	}
+	return "."
 }
