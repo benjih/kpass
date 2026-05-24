@@ -4,7 +4,6 @@ import QtQuick.Controls as Controls
 import QtQuick.Layouts
 import QtQuick.Dialogs
 import org.kde.kirigami as Kirigami
-import org.kde.kirigami.primitives as KirigamiPrimitives
 import Tr
 
 Kirigami.Page {
@@ -28,17 +27,25 @@ Kirigami.Page {
             Layout.fillHeight: true
         }
 
-        KirigamiPrimitives.Icon {
-            source: typeof appIconUrl !== "undefined" && appIconUrl !== ""
-                ? appIconUrl
-                : Qt.resolvedUrl("../assets/KPass.png")
-            Layout.preferredWidth: Kirigami.Units.iconSizes.huge
+        Item {
+            Layout.fillWidth: true
             Layout.preferredHeight: Kirigami.Units.iconSizes.huge
-            Layout.alignment: Qt.AlignHCenter
+
+            Image {
+                anchors.centerIn: parent
+                width: Kirigami.Units.iconSizes.huge
+                height: Kirigami.Units.iconSizes.huge
+                source: typeof appIconUrl !== "undefined" && appIconUrl !== ""
+                    ? appIconUrl
+                    : Qt.resolvedUrl("../assets/KPass.png")
+                fillMode: Image.PreserveAspectFit
+                smooth: true
+            }
         }
 
         ColumnLayout {
             spacing: Kirigami.Units.smallSpacing
+            Layout.fillWidth: true
             Layout.alignment: Qt.AlignHCenter
 
             Kirigami.Heading {
