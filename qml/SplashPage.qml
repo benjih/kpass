@@ -121,8 +121,8 @@ Kirigami.Page {
 
     Controls.Dialog {
         id: passwordDialog
-        parent: Controls.Overlay.overlay
         title: Tr.i18n("Unlock Database")
+        anchors.centerIn: parent
         modal: true
         width: Kirigami.Units.gridUnit * 20
         standardButtons: Controls.Dialog.Ok | Controls.Dialog.Cancel
