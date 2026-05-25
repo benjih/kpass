@@ -38,6 +38,16 @@ Kirigami.ApplicationWindow {
         settings.recentFiles = files
     }
 
+    Shortcut {
+        sequence: StandardKey.Find
+        onActivated: {
+            var page = pageStack.currentItem
+            if (page && typeof page.focusSearch === "function") {
+                page.focusSearch()
+            }
+        }
+    }
+
     globalDrawer: drawer
 
     Kirigami.GlobalDrawer {
