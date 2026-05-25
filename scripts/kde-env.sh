@@ -1,6 +1,6 @@
 # Source from devbox init_hook or before go build / go run.
-# KDE Frameworks 6.6 in nixpkgs are built against Qt 6.7; miqt must use the same Qt at
-# link time and runtime (do not add qt6.full — it is Qt 6.6 and breaks KDE QML plugins).
+# KDE packages in devbox pull a matching Qt (e.g. 6.9 for KF 6.18). miqt must use that
+# same Qt at link time and runtime (do not add qt6.full — a different Qt breaks QML plugins).
 
 profile_store_paths() {
   if [ -e "${DEVBOX_PROJECT_ROOT:-.}/.devbox/nix/profile/default" ]; then
@@ -8,14 +8,19 @@ profile_store_paths() {
   fi
 }
 
+# Pick the newest matching store path (KF bumps can change 6.7 -> 6.9, etc.).
 find_store() {
   local pattern="$1"
-  profile_store_paths | grep -E "$pattern" | head -1
+  profile_store_paths \
+    | grep -E "$pattern" \
+    | grep -vE 'only-plugins|\.debug' \
+    | sort -V \
+    | tail -1
 }
 
-QTBASE="$(find_store 'qtbase-6\.7\.[0-9]+$')"
-QTBASE_DEV="$(find_store 'qtbase-6\.7\.[0-9]+-dev$')"
-QTDECL="$(find_store 'qtdeclarative-6\.7\.[0-9]+$')"
+QTBASE="$(find_store 'qtbase-6\.[0-9]+\.[0-9]+$')"
+QTBASE_DEV="$(find_store 'qtbase-6\.[0-9]+\.[0-9]+-dev$')"
+QTDECL="$(find_store 'qtdeclarative-6\.[0-9]+\.[0-9]+$')"
 
 qt_pkgconfig_dirs() {
   local dirs=""

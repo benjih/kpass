@@ -28,9 +28,9 @@ Use `QT_QUICK_BACKEND=software` if the GPU backend fails (already set in the Mak
 
 ## KDE / Kirigami
 
-Devbox includes Kirigami, Breeze icons, and Breeze desktop QQC2 style (pinned to **6.6.0**). Those packages pull in **Qt 6.7**; do not add `qt6.full` (Qt 6.6) or you will get “incompatible Qt library” errors from KDE QML plugins.
+Devbox includes Kirigami, Breeze icons, and Breeze desktop QQC2 style (pinned to **6.18.0**). Those packages pull in a matching Qt (currently **6.9**); do not add `qt6.full` or another Qt pin, or you will get “incompatible Qt library” errors from KDE QML plugins.
 
-`scripts/kde-env.sh` points `PKG_CONFIG_PATH` and `LD_LIBRARY_PATH` at Qt 6.7 for `go build` / `go run`, sets `QML2_IMPORT_PATH`, and `QT_QUICK_CONTROLS_STYLE=org.kde.desktop`.
+`scripts/kde-env.sh` discovers Qt from the devbox closure and sets `PKG_CONFIG_PATH`, `LD_LIBRARY_PATH`, and `QML2_IMPORT_PATH` for `go build` / `go run`, plus `QT_QUICK_CONTROLS_STYLE=org.kde.desktop`.
 
 After changing Qt packages, run: `go clean -cache && make build`.
 
