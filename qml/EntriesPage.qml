@@ -31,7 +31,7 @@ Kirigami.ScrollablePage {
             icon.name: "search"
             text: Tr.i18n("Search")
             shortcut: StandardKey.Find
-            onTriggered: searchField.forceActiveFocus()
+            onTriggered: Qt.callLater(searchField.forceActiveFocus)
         },
         Kirigami.Action {
             icon.name: "document-save"
