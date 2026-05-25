@@ -1,8 +1,8 @@
 .PHONY: run build generate moc \
 	flatpak flatpak-deps flatpak-vendor flatpak-build flatpak-install flatpak-run flatpak-rebuild flatpak-clean
 
-FLATPAK_MANIFEST := flatpak/org.benjih.KPass.yaml
-FLATPAK_ID := org.benjih.KPass
+FLATPAK_MANIFEST := flatpak/com.benjih.KPass.yaml
+FLATPAK_ID := com.benjih.KPass
 FLATPAK_REPO := repo
 FLATPAK_REPO_ABS := $(abspath $(FLATPAK_REPO))
 FLATPAK_BUILD_DIR := flatpak-build

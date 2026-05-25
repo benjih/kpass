@@ -44,11 +44,11 @@ Requires [Flatpak](https://flatpak.org/) and `flatpak-builder`, with the `flathu
 
 ```bash
 make flatpak      # install SDK/runtime, vendor Go deps, build, install
-make flatpak-run  # launch org.benjih.KPass
+make flatpak-run  # launch com.benjih.KPass
 make flatpak-rebuild  # clean build dir + full rebuild
 ```
 
-Manifest: `flatpak/org.benjih.KPass.yaml` (KDE Platform 6.10).
+Manifest: `flatpak/com.benjih.KPass.yaml` (KDE Platform 6.10).
 
 ## Notes
 

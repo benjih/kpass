@@ -1,4 +1,4 @@
-id: org.benjih.KPass
+id: com.benjih.KPass
 runtime: org.kde.Platform
 runtime-version: "6.10"
 sdk: org.kde.Sdk
@@ -28,8 +28,8 @@ modules:
       - . /usr/lib/sdk/golang/enable.sh
       - go build -mod=vendor -trimpath -ldflags="-s -w" -o kpass .
       - install -Dm755 kpass ${FLATPAK_DEST}/bin/kpass
-      - install -Dm644 flatpak/org.benjih.KPass.desktop ${FLATPAK_DEST}/share/applications/${FLATPAK_ID}.desktop
-      - install -Dm644 flatpak/org.benjih.KPass.metainfo.xml ${FLATPAK_DEST}/share/metainfo/${FLATPAK_ID}.metainfo.xml
+      - install -Dm644 flatpak/com.benjih.KPass.desktop ${FLATPAK_DEST}/share/applications/${FLATPAK_ID}.desktop
+      - install -Dm644 flatpak/com.benjih.KPass.metainfo.xml ${FLATPAK_DEST}/share/metainfo/${FLATPAK_ID}.metainfo.xml
       - ffmpeg -y -loglevel error -i assets/KPass.png -vf scale=512:512 icon-512.png
       - install -Dm644 icon-512.png ${FLATPAK_DEST}/share/icons/hicolor/512x512/apps/${FLATPAK_ID}.png
       - install -Dm644 assets/KPass.png ${FLATPAK_DEST}/share/kpass/assets/KPass.png
