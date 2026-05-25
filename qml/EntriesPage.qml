@@ -71,13 +71,14 @@ Kirigami.ScrollablePage {
             Layout.topMargin: Kirigami.Units.smallSpacing
             placeholderText: Tr.i18n("Search entries...")
         }
-        Kirigami.Heading {
-            text: Tr.i18n("%1 items found", entriesPage.visibleCount)
-            level: 3
-            visible: entriesPage.visibleCount > 0
-            Layout.fillWidth: true
-            padding: Kirigami.Units.largeSpacing
-        }
+    }
+
+    footer: Kirigami.Heading {
+        text: Tr.i18n("%1 items found", entriesPage.visibleCount)
+        level: 3
+        visible: entriesPage.visibleCount > 0
+        width: parent.width
+        padding: Kirigami.Units.largeSpacing
     }
 
     ListView {
