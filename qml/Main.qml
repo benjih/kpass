@@ -50,9 +50,15 @@ Kirigami.ApplicationWindow {
         handleOpenIcon.name: "view-filter"
         isMenu: false
 
-        Component.onCompleted: updateActions()
-
         property var actionObjects: []
+
+        function clearActions() {
+            for (var j = 0; j < actionObjects.length; ++j) {
+                actionObjects[j].destroy()
+            }
+            actionObjects = []
+            drawer.actions = []
+        }
 
         function updateActions() {
             for (var j = 0; j < actionObjects.length; ++j) {
@@ -86,8 +92,23 @@ Kirigami.ApplicationWindow {
         }
 
         Connections {
+            target: root
+            function onDatabaseOpenChanged() {
+                if (root.databaseOpen) {
+                    drawer.updateActions()
+                } else {
+                    drawer.clearActions()
+                }
+            }
+        }
+
+        Connections {
             target: databaseManager
-            function onGroupsChanged() { drawer.updateActions() }
+            function onGroupsChanged() {
+                if (root.databaseOpen) {
+                    drawer.updateActions()
+                }
+            }
         }
     }
 
