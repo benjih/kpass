@@ -3,6 +3,7 @@ package keepass
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/tobischo/gokeepasslib/v3"
@@ -86,15 +87,35 @@ func (m *Manager) Save() error {
 		return fmt.Errorf("no database open")
 	}
 
-	file, err := os.Create(m.filePath)
+	// Write to a temp file in the same directory so the final os.Rename is
+	// atomic (same filesystem). If anything fails before the rename, the
+	// original .kdbx file is untouched.
+	dir := filepath.Dir(m.filePath)
+	tmp, err := os.CreateTemp(dir, ".kpass-save-*")
 	if err != nil {
 		return err
 	}
-	defer file.Close()
+	tmpName := tmp.Name()
 
-	if err := gokeepasslib.NewEncoder(file).Encode(m.db); err != nil {
+	// Capture both errors before removing the temp file so we don't lose
+	// encodeErr if Close also fails.
+	encodeErr := gokeepasslib.NewEncoder(tmp).Encode(m.db)
+	closeErr := tmp.Close()
+	if encodeErr != nil || closeErr != nil {
+		os.Remove(tmpName)
+		if encodeErr != nil {
+			return encodeErr
+		}
+		return closeErr
+	}
+
+	// Atomic swap — readers see either the old file or the new file, never a
+	// partial write.
+	if err := os.Rename(tmpName, m.filePath); err != nil {
+		os.Remove(tmpName)
 		return err
 	}
+
 	m.isModified = false
 	return nil
 }
