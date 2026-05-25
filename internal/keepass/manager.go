@@ -13,7 +13,6 @@ import (
 type Manager struct {
 	db         *gokeepasslib.Database
 	filePath   string
-	password   string
 	entries    []Entry
 	groups     []string
 	lastError  string
@@ -66,7 +65,6 @@ func (m *Manager) Open(path, password string) bool {
 
 	m.db = db
 	m.filePath = path
-	m.password = password
 	m.rebuildIndex()
 	m.isModified = false
 	return true
@@ -75,7 +73,6 @@ func (m *Manager) Open(path, password string) bool {
 func (m *Manager) Close() {
 	m.db = nil
 	m.filePath = ""
-	m.password = ""
 	m.entries = nil
 	m.groups = nil
 	m.lastError = ""
