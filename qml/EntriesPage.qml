@@ -155,14 +155,6 @@ Kirigami.ScrollablePage {
                         databaseManager.copyToClipboard(modelData.password)
                         showPassiveNotification(Tr.i18n("Password copied"))
                     }
-                },
-                Kirigami.Action {
-                    icon.name: "entry-details"
-                    tooltip: Tr.i18n("View Details")
-                    onTriggered: {
-                        listView.currentIndex = index
-                        delegate.openDetails()
-                    }
                 }
             ]
             onClicked: {
