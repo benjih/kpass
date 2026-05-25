@@ -40,7 +40,7 @@ Kirigami.ScrollablePage {
             onTriggered: entriesPage.saveDatabaseRequested()
         },
         Kirigami.Action {
-            icon.name: "document-close"
+            icon.name: "window-close"
             text: Tr.i18n("Close Database")
             onTriggered: entriesPage.closeDatabaseRequested()
         }
