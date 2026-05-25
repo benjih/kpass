@@ -30,8 +30,7 @@ Kirigami.ScrollablePage {
         Kirigami.Action {
             icon.name: "search"
             text: Tr.i18n("Search")
-            shortcut: StandardKey.Find
-            onTriggered: Qt.callLater(searchField.forceActiveFocus)
+            onTriggered: searchField.forceActiveFocus()
         },
         Kirigami.Action {
             icon.name: "document-save"
@@ -59,6 +58,11 @@ Kirigami.ScrollablePage {
             }
         }
         return count
+    }
+
+    Shortcut {
+        sequence: StandardKey.Find
+        onActivated: searchField.forceActiveFocus()
     }
 
     header: ColumnLayout {
