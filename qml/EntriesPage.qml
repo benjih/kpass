@@ -31,10 +31,7 @@ Kirigami.ScrollablePage {
             icon.name: "search"
             text: Tr.i18n("Search")
             shortcut: StandardKey.Find
-            onTriggered: {
-                searchField.forceActiveFocus(Qt.ShortcutFocusReason)
-                searchFocusTimer.restart()
-            }
+            onTriggered: searchFocusTimer.restart()
         },
         Kirigami.Action {
             icon.name: "document-save"
@@ -66,8 +63,16 @@ Kirigami.ScrollablePage {
 
     Timer {
         id: searchFocusTimer
-        interval: 50
-        onTriggered: searchField.forceActiveFocus(Qt.ShortcutFocusReason)
+        interval: 16
+        repeat: true
+        property int attempts: 0
+        onTriggered: {
+            searchField.forceActiveFocus(Qt.ShortcutFocusReason)
+            if (searchField.activeFocus || ++attempts >= 10) {
+                stop()
+                attempts = 0
+            }
+        }
     }
 
     header: ColumnLayout {
