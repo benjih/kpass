@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>org.benjih.KPass</id>
+  <name>KPass</name>
+  <summary>KeePass password database client</summary>
+  <description>
+    <p>
+      KPass is a desktop client for KeePass .kdbx databases. It combines a Qt 6 /
+      Kirigami interface with Go and gokeepasslib for database access.
+    </p>
+  </description>
+  <launchable type="desktop-id">org.benjih.KPass.desktop</launchable>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>MIT</project_license>
+  <content_rating type="oars-1.1" />
+  <releases>
+    <release version="0.1.0" date="2026-05-25" />
+  </releases>
+</component>

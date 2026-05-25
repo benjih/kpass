@@ -38,6 +38,18 @@ User-visible strings use the `Tr` QML singleton (`Tr.i18n`) instead of KI18n.
 
 QML is the original `kpass-c` Kirigami UI with Qt 6 import syntax and a Qt 6 `FileDialog` on the splash screen.
 
+## Flatpak
+
+Requires [Flatpak](https://flatpak.org/) and `flatpak-builder`, with the `flathub` remote configured.
+
+```bash
+make flatpak      # install SDK/runtime, vendor Go deps, build, install
+make flatpak-run  # launch org.benjih.KPass
+make flatpak-rebuild  # clean build dir + full rebuild
+```
+
+Manifest: `flatpak/org.benjih.KPass.yaml` (KDE Platform 6.10).
+
 ## Notes
 
 - Run from the project directory so `qml/Main.qml` resolves.

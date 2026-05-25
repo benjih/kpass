@@ -198,10 +198,15 @@ func iconThemeSearchPaths() []string {
 
 func projectRoot() string {
 	if exe, err := os.Executable(); err == nil {
-		root := filepath.Dir(exe)
-		if !strings.Contains(root, "go-build") {
-			if _, err := os.Stat(filepath.Join(root, "qml", "Main.qml")); err == nil {
-				return root
+		binDir := filepath.Dir(exe)
+		if !strings.Contains(binDir, "go-build") {
+			for _, root := range []string{
+				binDir,
+				filepath.Join(binDir, "..", "share", "kpass"),
+			} {
+				if _, err := os.Stat(filepath.Join(root, "qml", "Main.qml")); err == nil {
+					return root
+				}
 			}
 		}
 	}

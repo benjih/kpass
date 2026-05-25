@@ -17,6 +17,19 @@ var (
 // setupRuntimeEnvironment ensures devbox Qt/KDE paths work when the binary is
 // launched without sourcing scripts/kde-env.sh (e.g. ./kpass after make build).
 func setupRuntimeEnvironment() {
+	if os.Getenv("FLATPAK_ID") != "" {
+		if os.Getenv("QT_QUICK_CONTROLS_STYLE") == "" {
+			os.Setenv("QT_QUICK_CONTROLS_STYLE", "org.kde.desktop")
+		}
+		if os.Getenv("XDG_ICON_THEME") == "" {
+			os.Setenv("XDG_ICON_THEME", "breeze")
+		}
+		if os.Getenv("QT_QPA_PLATFORMTHEME") == "" {
+			os.Setenv("QT_QPA_PLATFORMTHEME", "kde")
+		}
+		return
+	}
+
 	root := projectRoot()
 	profile := filepath.Join(root, ".devbox/nix/profile/default")
 	closure := nixClosurePaths(profile)
