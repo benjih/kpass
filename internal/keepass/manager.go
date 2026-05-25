@@ -2,6 +2,7 @@ package keepass
 
 import (
 	"fmt"
+	"net/url"
 	"os"
 	"path/filepath"
 	"strings"
@@ -297,6 +298,9 @@ func fileURLToPath(path string) string {
 		path = strings.TrimPrefix(path, "file://")
 		if len(path) > 2 && path[0] == '/' && path[2] == ':' {
 			path = path[1:]
+		}
+		if decoded, err := url.PathUnescape(path); err == nil {
+			path = decoded
 		}
 	}
 	return path
