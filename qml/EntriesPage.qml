@@ -30,7 +30,8 @@ Kirigami.ScrollablePage {
         Kirigami.Action {
             icon.name: "search"
             text: Tr.i18n("Search")
-            onTriggered: searchField.forceActiveFocus()
+            shortcut: StandardKey.Find
+            onTriggered: searchFocusTimer.restart()
         },
         Kirigami.Action {
             icon.name: "document-save"
@@ -60,9 +61,10 @@ Kirigami.ScrollablePage {
         return count
     }
 
-    Shortcut {
-        sequence: StandardKey.Find
-        onActivated: searchField.forceActiveFocus()
+    Timer {
+        id: searchFocusTimer
+        interval: 50
+        onTriggered: searchField.forceActiveFocus()
     }
 
     header: ColumnLayout {
