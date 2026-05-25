@@ -24,7 +24,7 @@ make generate   # once: runs Qt 6 moc on bridge/databasemanager.h
 make run        # or: go run .
 ```
 
-Use `QT_QUICK_BACKEND=software` if the GPU backend fails (already set in the Makefile `run` target).
+`QT_QUICK_BACKEND=software` is the default (in `scripts/kde-env.sh` and at app startup) so `./kpass` works on Nix without a full GLX stack. Set `QT_QUICK_BACKEND=basic` to try GPU rendering.
 
 ## KDE / Kirigami
 

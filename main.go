@@ -46,33 +46,28 @@ func main() {
 	qt.QApplication_Exec()
 }
 
-// setupRuntimeEnvironment ensures icon and KDE plugin paths are visible when the
-// app is launched outside devbox shell (e.g. from an IDE) without kde-env.sh.
-func setupRuntimeEnvironment() {
-	pluginPaths := kdePluginPaths()
-	augmentEnvPath("XDG_DATA_DIRS", iconSharePaths()...)
-	augmentEnvPath("QT_PLUGIN_PATH", pluginPaths...)
-
-	if os.Getenv("QT_QPA_PLATFORMTHEME") == "" && len(pluginPaths) > 0 {
-		os.Setenv("QT_QPA_PLATFORMTHEME", "kde")
-	}
-	if os.Getenv("XDG_ICON_THEME") == "" {
-		os.Setenv("XDG_ICON_THEME", "breeze")
-	}
-	if os.Getenv("QT_QUICK_CONTROLS_STYLE") == "" {
-		os.Setenv("QT_QUICK_CONTROLS_STYLE", "org.kde.desktop")
-	}
+func augmentEnvPath(key string, paths ...string) {
+	augmentEnvPathFiltered(key, nil, paths...)
 }
 
-func augmentEnvPath(key string, paths ...string) {
-	if len(paths) == 0 {
+func augmentEnvPathFiltered(key string, skipSubstrings []string, paths ...string) {
+	if len(paths) == 0 && len(skipSubstrings) == 0 {
 		return
+	}
+
+	shouldSkip := func(p string) bool {
+		for _, sub := range skipSubstrings {
+			if sub != "" && strings.Contains(p, sub) {
+				return true
+			}
+		}
+		return false
 	}
 
 	seen := map[string]bool{}
 	var merged []string
 	add := func(p string) {
-		if p == "" || seen[p] {
+		if p == "" || seen[p] || shouldSkip(p) {
 			return
 		}
 		info, err := os.Stat(p)

@@ -1,7 +1,7 @@
 .PHONY: run build generate moc
 
 run: generate
-	. scripts/kde-env.sh && QT_QUICK_BACKEND=software go run .
+	. scripts/kde-env.sh && go run .
 
 build: generate
 	. scripts/kde-env.sh && go build -o kpass .

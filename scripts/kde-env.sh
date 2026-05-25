@@ -41,12 +41,40 @@ if [ -n "$PC_DIRS" ]; then
   export PKG_CONFIG_PATH="$PC_DIRS"
 fi
 
+# Drop stale Qt paths from the shell (e.g. an older 6.7 closure) before prepending ours.
+filter_ld_path() {
+  local filtered="" entry
+  IFS=':'
+  for entry in ${LD_LIBRARY_PATH:-}; do
+    case "$entry" in
+      *qtbase-*|*qtdeclarative-*) continue ;;
+    esac
+    if [ -n "$entry" ]; then
+      filtered="${filtered:+$filtered:}$entry"
+    fi
+  done
+  unset IFS
+  printf '%s' "$filtered"
+}
+
+LD_REST="$(filter_ld_path)"
+LD_PREFIX=""
+if [ -n "$QTDECL" ] && [ -d "$QTDECL/lib" ]; then
+  LD_PREFIX="$QTDECL/lib"
+fi
 if [ -n "$QTBASE" ] && [ -d "$QTBASE/lib" ]; then
-  export LD_LIBRARY_PATH="$QTBASE/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+  LD_PREFIX="${LD_PREFIX:+$LD_PREFIX:}$QTBASE/lib"
   export PATH="$QTBASE/bin:$PATH"
 fi
-if [ -n "$QTDECL" ] && [ -d "$QTDECL/lib" ]; then
-  export LD_LIBRARY_PATH="$QTDECL/lib:$LD_LIBRARY_PATH"
+LIBGL="$(find_store 'libglvnd-[0-9]+\.[0-9]+\.[0-9]+$')"
+if [ -n "$LIBGL" ] && [ -d "$LIBGL/lib" ]; then
+  LD_PREFIX="${LD_PREFIX:+$LD_PREFIX:}$LIBGL/lib"
+fi
+if [ -d /run/opengl-driver/lib ]; then
+  LD_PREFIX="/run/opengl-driver/lib${LD_PREFIX:+:$LD_PREFIX}"
+fi
+if [ -n "$LD_PREFIX" ] || [ -n "$LD_REST" ]; then
+  export LD_LIBRARY_PATH="${LD_PREFIX}${LD_REST:+:$LD_REST}"
 fi
 
 kde_qml_paths() {
@@ -93,6 +121,7 @@ kde_plugin_paths() {
 }
 
 export QML2_IMPORT_PATH="$(kde_qml_paths)"
+export QT_QUICK_BACKEND="${QT_QUICK_BACKEND:-software}"
 export QT_QUICK_CONTROLS_STYLE="${QT_QUICK_CONTROLS_STYLE:-org.kde.desktop}"
 export XDG_ICON_THEME="${XDG_ICON_THEME:-breeze}"
 
