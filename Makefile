@@ -70,5 +70,5 @@ flatpak-clean:
 	rm -rf $(FLATPAK_BUILD_DIR) $(FLATPAK_REPO)
 
 flatpak-rebuild: flatpak-clean
-	$(MAKE) flatpak-deps flatpak-vendor flatpak-build FLATPAK_BUILD_FLAGS=--force-clean flatpak-install
+	$(MAKE) flatpak-deps flatpak-vendor flatpak-build flatpak-install
 	@echo "Installed $(FLATPAK_ID) — run: make flatpak-run"
