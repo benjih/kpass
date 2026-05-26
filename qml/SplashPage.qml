@@ -13,10 +13,18 @@ Kirigami.Page {
     globalToolBarStyle: Kirigami.ApplicationHeaderStyle.None
 
     property var recentFiles: []
+    property string initialFilePath: ""
 
     signal openFileRequested()
     signal recentFileSelected(string url)
     signal databaseUnlocked(string url, string password)
+
+    Component.onCompleted: {
+        if (initialFilePath !== "") {
+            passwordDialog.databaseUrl = initialFilePath
+            passwordDialog.open()
+        }
+    }
 
     ColumnLayout {
         width: parent.width

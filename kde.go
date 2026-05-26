@@ -102,7 +102,7 @@ func iconSharePaths() []string {
 	return paths
 }
 
-func setupUI() {
+func setupUI(initialFilePath string) {
 	engine := qml.NewQQmlApplicationEngine()
 	engine.RootContext().SetContextProperty("databaseManager", bridge.NewDatabaseManager())
 
@@ -110,6 +110,10 @@ func setupUI() {
 	engine.RootContext().SetContextProperty2(
 		"appIconUrl",
 		qt.NewQVariant11(qt.QUrl_FromLocalFile(filepath.Join(root, "assets", "KPass.png")).ToString()),
+	)
+	engine.RootContext().SetContextProperty2(
+		"initialFilePath",
+		qt.NewQVariant11(initialFilePath),
 	)
 
 	qmlDir := filepath.Join(root, "qml")
