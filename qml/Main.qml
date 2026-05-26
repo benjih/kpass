@@ -19,14 +19,15 @@ Kirigami.ApplicationWindow {
     Settings {
         id: settings
         category: "General"
-        property var recentFiles: []
+        property string recentFiles: "[]"
+    }
+
+    property var parsedRecentFiles: {
+        try { return JSON.parse(settings.recentFiles) } catch(e) { return [] }
     }
 
     function addRecentFile(url) {
-        var files = settings.recentFiles
-        if (!Array.isArray(files)) {
-            files = []
-        }
+        var files = parsedRecentFiles.slice()
         var index = files.indexOf(url)
         if (index !== -1) {
             files.splice(index, 1)
@@ -35,7 +36,7 @@ Kirigami.ApplicationWindow {
         if (files.length > 5) {
             files.pop()
         }
-        settings.recentFiles = files
+        settings.recentFiles = JSON.stringify(files)
     }
 
     globalDrawer: drawer
@@ -129,7 +130,7 @@ Kirigami.ApplicationWindow {
     Component {
         id: splashPageComponent
         SplashPage {
-            recentFiles: settings.recentFiles
+            recentFiles: root.parsedRecentFiles
 
             onDatabaseUnlocked: function(url, password) {
                 if (databaseManager.openDatabase(url, password)) {
