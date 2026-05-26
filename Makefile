@@ -43,6 +43,7 @@ flatpak-deps:
 flatpak-vendor: vendor/modules.txt
 
 vendor/modules.txt: go.mod go.sum
+	rm -rf vendor
 	go mod vendor
 
 flatpak-build: flatpak-vendor $(FLATPAK_MANIFEST)
