@@ -16,7 +16,7 @@ run: generate
 build: generate
 	. scripts/kde-env.sh && go build -o kpass .
 
-generate: bridge/moc_databasemanager.cpp
+generate: internal/bridge/moc_databasemanager.cpp
 
 # Qt moc from devbox closure (see scripts/kde-env.sh). Prefer nix Qt over /usr/bin/moc.
 MOC ?= $(shell . scripts/kde-env.sh 2>/dev/null; \
@@ -24,9 +24,9 @@ MOC ?= $(shell . scripts/kde-env.sh 2>/dev/null; \
 	elif [ -n "$$QTBASE" ] && [ -x "$$QTBASE/bin/moc" ]; then echo "$$QTBASE/bin/moc"; \
 	else command -v moc 2>/dev/null; fi)
 
-bridge/moc_databasemanager.cpp: bridge/databasemanager.h
+internal/bridge/moc_databasemanager.cpp: internal/bridge/databasemanager.h
 	@test -n "$(MOC)" && test -x "$(MOC)" || (echo "Run 'devbox install' inside devbox shell, then make generate" && exit 1)
-	$(MOC) bridge/databasemanager.h -o bridge/moc_databasemanager.cpp
+	$(MOC) internal/bridge/databasemanager.h -o internal/bridge/moc_databasemanager.cpp
 
 # Flatpak: vendor deps, install SDK/runtime, build, and install the app.
 flatpak: flatpak-deps flatpak-vendor flatpak-build flatpak-install

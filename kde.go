@@ -5,7 +5,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/benjih/kpass/bridge"
+	"github.com/benjih/kpass/internal/bridge"
 	"github.com/benjih/kpass/internal"
 	qt "github.com/mappu/miqt/qt6"
 	"github.com/mappu/miqt/qt6/qml"

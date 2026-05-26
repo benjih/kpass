@@ -1,5 +1,5 @@
 // Package bridge is the cgo and C++ glue layer that connects QML to Go's
-// KeePass logic. See bridge/README.md for a full architecture walkthrough.
+// KeePass logic. See internal/bridge/README.md for a full architecture walkthrough.
 package bridge
 
 /*

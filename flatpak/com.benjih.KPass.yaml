@@ -24,7 +24,7 @@ modules:
   - name: kpass
     buildsystem: simple
     build-commands:
-      - moc bridge/databasemanager.h -o bridge/moc_databasemanager.cpp
+      - moc internal/bridge/databasemanager.h -o internal/bridge/moc_databasemanager.cpp
       - . /usr/lib/sdk/golang/enable.sh
       - go build -mod=vendor -trimpath -tags flatpak -ldflags="-s -w" -o kpass .
       - install -Dm755 kpass ${FLATPAK_DEST}/bin/kpass
