@@ -1,3 +1,5 @@
+// Package bridge is the cgo and C++ glue layer that connects QML to Go's
+// KeePass logic. See bridge/README.md for a full architecture walkthrough.
 package bridge
 
 /*
@@ -18,10 +20,15 @@ import (
 )
 
 var (
+	// mu guards every manager call. Qt's event loop is single-threaded, but
+	// the mutex makes the cgo boundary safe against any future concurrency.
 	mu      sync.Mutex
 	manager = keepass.NewManager()
 )
 
+// goOpenDatabase opens the .kdbx file at path with the given password.
+// Returns 1 on success, 0 on failure; retrieve the message with goGetLastError.
+//
 //export goOpenDatabase
 func goOpenDatabase(path *C.char, password *C.char) C.int {
 	mu.Lock()
@@ -33,6 +40,8 @@ func goOpenDatabase(path *C.char, password *C.char) C.int {
 	return 0
 }
 
+// goCloseDatabase releases the currently open database from Go memory.
+//
 //export goCloseDatabase
 func goCloseDatabase() {
 	mu.Lock()
@@ -40,6 +49,10 @@ func goCloseDatabase() {
 	manager.Close()
 }
 
+// goGetEntriesJSON returns all entries in the open database as a JSON array.
+// Each element carries: group, title, username, uuid, password, url, notes.
+// The caller owns the returned C string and must free it with goFreeString.
+//
 //export goGetEntriesJSON
 func goGetEntriesJSON() *C.char {
 	mu.Lock()
@@ -69,6 +82,9 @@ func goGetEntriesJSON() *C.char {
 	return C.CString(string(b))
 }
 
+// goGetGroupsJSON returns the deduplicated group names as a JSON string array.
+// The caller owns the returned C string and must free it with goFreeString.
+//
 //export goGetGroupsJSON
 func goGetGroupsJSON() *C.char {
 	mu.Lock()
@@ -77,6 +93,9 @@ func goGetGroupsJSON() *C.char {
 	return C.CString(string(b))
 }
 
+// goGetLastError returns the last error message, or an empty string on success.
+// The caller owns the returned C string and must free it with goFreeString.
+//
 //export goGetLastError
 func goGetLastError() *C.char {
 	mu.Lock()
@@ -84,6 +103,9 @@ func goGetLastError() *C.char {
 	return C.CString(manager.LastError())
 }
 
+// goDeleteEntry removes the entry at index from the in-memory database.
+// Returns 1 on success, 0 if the index is out of range.
+//
 //export goDeleteEntry
 func goDeleteEntry(index C.int) C.int {
 	mu.Lock()
@@ -94,6 +116,9 @@ func goDeleteEntry(index C.int) C.int {
 	return 0
 }
 
+// goUpdateEntry overwrites the editable fields of the entry at index.
+// Returns 1 on success, 0 if the index is out of range.
+//
 //export goUpdateEntry
 func goUpdateEntry(index C.int, title, username, password, url, notes *C.char) C.int {
 	mu.Lock()
@@ -105,6 +130,9 @@ func goUpdateEntry(index C.int, title, username, password, url, notes *C.char) C
 	return 0
 }
 
+// goSaveDatabase flushes the current in-memory state to the original .kdbx file.
+// Returns 1 on success, 0 on write error; retrieve the message with goGetLastError.
+//
 //export goSaveDatabase
 func goSaveDatabase() C.int {
 	mu.Lock()
@@ -115,6 +143,9 @@ func goSaveDatabase() C.int {
 	return 1
 }
 
+// goFreeString releases a C string that was allocated by C.CString in Go.
+// C++ callers must invoke this for every string returned by a go* function.
+//
 //export goFreeString
 func goFreeString(s *C.char) {
 	if s != nil {
@@ -122,9 +153,11 @@ func goFreeString(s *C.char) {
 	}
 }
 
-// NewDatabaseManager constructs the QML-facing DatabaseManager QObject.
+// NewDatabaseManager allocates a DatabaseManager QObject and returns it as a
+// *qt6.QObject so main.go can register it as a QML context property. The C++
+// constructor is called here rather than in Go to let Qt's moc infrastructure
+// manage the object's lifetime.
 func NewDatabaseManager() *qt6.QObject {
 	ptr := C.newDatabaseManager(nil)
 	return qt6.UnsafeNewQObject(unsafe.Pointer(ptr))
 }
-

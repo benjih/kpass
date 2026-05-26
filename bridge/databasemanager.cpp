@@ -20,6 +20,9 @@ int goSaveDatabase();
 void goFreeString(char *s);
 }
 
+// parseEntriesJson deserialises the JSON produced by goGetEntriesJSON() into a
+// QVariantList of QVariantMaps. It takes ownership of json and frees it via
+// goFreeString immediately after parsing, before any early return.
 static QVariantList parseEntriesJson(const char *json)
 {
     QVariantList out;
@@ -47,6 +50,8 @@ static QVariantList parseEntriesJson(const char *json)
     return out;
 }
 
+// parseGroupsJson deserialises the JSON produced by goGetGroupsJSON() into a
+// QStringList. Owns and frees json via goFreeString after parsing.
 static QStringList parseGroupsJson(const char *json)
 {
     QStringList out;
@@ -70,6 +75,10 @@ DatabaseManager::DatabaseManager(QObject *parent)
 {
 }
 
+// refreshFromGo re-fetches all mutable state from the Go side and emits the
+// three change signals so QML bindings update automatically. It is the single
+// sync point called after every operation that may alter entries, groups, or
+// error state.
 void DatabaseManager::refreshFromGo()
 {
     m_entries = parseEntriesJson(goGetEntriesJSON());
@@ -86,6 +95,9 @@ void DatabaseManager::refreshFromGo()
 
 bool DatabaseManager::openDatabase(const QString &path, const QString &password)
 {
+    // QML's FileDialog hands us a file:// URL; convert it to a plain path.
+    // If path is already a plain path, toLocalFile() returns empty and we
+    // fall back to the original string.
     QString localPath = QUrl(path).toLocalFile();
     if (localPath.isEmpty()) {
         localPath = path;
@@ -145,6 +157,8 @@ QString DatabaseManager::lastError() const
     return m_lastError;
 }
 
+// newDatabaseManager is the C factory called from Go's bridge.NewDatabaseManager.
+// Returning void* avoids exposing the C++ type across the cgo boundary.
 extern "C" void *newDatabaseManager(void *parent)
 {
     return new DatabaseManager(static_cast<QObject *>(parent));
