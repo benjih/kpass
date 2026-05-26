@@ -1,4 +1,4 @@
-package main
+package internal
 
 import (
 	"os"
@@ -11,7 +11,7 @@ import (
 // executable's location first (skipping go-build temp dirs from `go run`),
 // then checks the FHS-style share/kpass sibling for installed/Flatpak layouts,
 // and falls back to the working directory for development.
-func projectRoot() string {
+func ProjectRoot() string {
 	if exe, err := os.Executable(); err == nil {
 		binDir := filepath.Dir(exe)
 		if !strings.Contains(binDir, "go-build") {
@@ -31,7 +31,7 @@ func projectRoot() string {
 	return "."
 }
 
-func nixClosurePaths(profile string) []string {
+func NixClosurePaths(profile string) []string {
 	if _, err := os.Stat(profile); err != nil {
 		return nil
 	}
@@ -50,11 +50,11 @@ func nixClosurePaths(profile string) []string {
 	return paths
 }
 
-func augmentEnvPath(key string, paths ...string) {
-	augmentEnvPathFiltered(key, nil, paths...)
+func AugmentEnvPath(key string, paths ...string) {
+	AugmentEnvPathFiltered(key, nil, paths...)
 }
 
-func augmentEnvPathFiltered(key string, skipSubstrings []string, paths ...string) {
+func AugmentEnvPathFiltered(key string, skipSubstrings []string, paths ...string) {
 	if len(paths) == 0 && len(skipSubstrings) == 0 {
 		return
 	}

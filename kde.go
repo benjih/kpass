@@ -5,7 +5,10 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/benjih/kpass/bridge"
+	"github.com/benjih/kpass/internal"
 	qt "github.com/mappu/miqt/qt6"
+	"github.com/mappu/miqt/qt6/qml"
 )
 
 func setupKDEAppearance() {
@@ -20,7 +23,7 @@ func setupKDEAppearance() {
 		qt.QIcon_SetThemeSearchPaths(paths)
 	}
 
-	iconPath := filepath.Join(projectRoot(), "assets", "KPass.png")
+	iconPath := filepath.Join(internal.ProjectRoot(), "assets", "KPass.png")
 	if _, err := os.Stat(iconPath); err == nil {
 		qt.QGuiApplication_SetWindowIcon(qt.NewQIcon4(iconPath))
 	}
@@ -57,7 +60,7 @@ func iconThemeSearchPaths() []string {
 }
 
 func kdePluginPaths() []string {
-	root := projectRoot()
+	root := internal.ProjectRoot()
 	profile := filepath.Join(root, ".devbox/nix/profile/default")
 
 	var paths []string
@@ -69,7 +72,7 @@ func kdePluginPaths() []string {
 	}
 
 	addPlugins(profile)
-	for _, store := range nixClosurePaths(profile) {
+	for _, store := range internal.NixClosurePaths(profile) {
 		addPlugins(store)
 	}
 	return paths
@@ -91,10 +94,34 @@ func iconSharePaths() []string {
 	if profile := os.Getenv("KPASS_ICON_PROFILE"); profile != "" {
 		add(profile)
 	}
-	add(filepath.Join(projectRoot(), ".devbox/nix/profile/default/share"))
+	add(filepath.Join(internal.ProjectRoot(), ".devbox/nix/profile/default/share"))
 
 	for _, dir := range strings.Split(os.Getenv("XDG_DATA_DIRS"), ":") {
 		add(dir)
 	}
 	return paths
+}
+
+func setupUI() {
+	engine := qml.NewQQmlApplicationEngine()
+	engine.RootContext().SetContextProperty("databaseManager", bridge.NewDatabaseManager())
+
+	root := internal.ProjectRoot()
+	engine.RootContext().SetContextProperty2(
+		"appIconUrl",
+		qt.NewQVariant11(qt.QUrl_FromLocalFile(filepath.Join(root, "assets", "KPass.png")).ToString()),
+	)
+
+	qmlDir := filepath.Join(root, "qml")
+	engine.AddImportPath(qmlDir)
+	for _, importPath := range strings.Split(os.Getenv("QML2_IMPORT_PATH"), ":") {
+		if importPath != "" {
+			engine.AddImportPath(importPath)
+		}
+	}
+	engine.Load(qt.QUrl_FromLocalFile(filepath.Join(qmlDir, "Main.qml")))
+
+	if len(engine.RootObjects()) == 0 {
+		os.Exit(1)
+	}
 }

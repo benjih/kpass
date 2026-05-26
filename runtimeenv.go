@@ -6,6 +6,8 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+
+	"github.com/benjih/kpass/internal"
 )
 
 var (
@@ -30,15 +32,15 @@ func setupRuntimeEnvironment() {
 		return
 	}
 
-	root := projectRoot()
+	root := internal.ProjectRoot()
 	profile := filepath.Join(root, ".devbox/nix/profile/default")
-	closure := nixClosurePaths(profile)
+	closure := internal.NixClosurePaths(profile)
 
 	pluginPaths := kdePluginPaths()
-	augmentEnvPath("XDG_DATA_DIRS", iconSharePaths()...)
-	augmentEnvPath("QT_PLUGIN_PATH", pluginPaths...)
-	augmentEnvPathFiltered("LD_LIBRARY_PATH", []string{"qtbase-", "qtdeclarative-"}, qtLibraryPaths(closure)...)
-	augmentEnvPath("QML2_IMPORT_PATH", qmlImportPaths(root, closure)...)
+	internal.AugmentEnvPath("XDG_DATA_DIRS", iconSharePaths()...)
+	internal.AugmentEnvPath("QT_PLUGIN_PATH", pluginPaths...)
+	internal.AugmentEnvPathFiltered("LD_LIBRARY_PATH", []string{"qtbase-", "qtdeclarative-"}, qtLibraryPaths(closure)...)
+	internal.AugmentEnvPath("QML2_IMPORT_PATH", qmlImportPaths(root, closure)...)
 
 	if os.Getenv("QT_QPA_PLATFORMTHEME") == "" && len(pluginPaths) > 0 {
 		os.Setenv("QT_QPA_PLATFORMTHEME", "kde")
