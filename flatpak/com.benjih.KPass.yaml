@@ -26,7 +26,7 @@ modules:
     build-commands:
       - moc bridge/databasemanager.h -o bridge/moc_databasemanager.cpp
       - . /usr/lib/sdk/golang/enable.sh
-      - go build -mod=vendor -trimpath -ldflags="-s -w" -o kpass .
+      - go build -mod=vendor -trimpath -tags flatpak -ldflags="-s -w" -o kpass .
       - install -Dm755 kpass ${FLATPAK_DEST}/bin/kpass
       - install -Dm644 flatpak/com.benjih.KPass.desktop ${FLATPAK_DEST}/share/applications/${FLATPAK_ID}.desktop
       - install -Dm644 flatpak/com.benjih.KPass.metainfo.xml ${FLATPAK_DEST}/share/metainfo/${FLATPAK_ID}.metainfo.xml
