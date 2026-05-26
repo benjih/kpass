@@ -4,7 +4,7 @@ go 1.26.2
 
 require (
 	github.com/mappu/miqt v0.13.0
-	github.com/tobischo/gokeepasslib/v3 v3.6.1
+	github.com/tobischo/gokeepasslib/v3 v3.6.2
 )
 
 require (
