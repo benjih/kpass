@@ -25,14 +25,6 @@
     "kdePackages.frameworkintegration": {
       "version": "6.18.0",
       "excluded_platforms": ["aarch64-darwin"]
-    },
-    "flatpak": {
-      "version": "1.14.6",
-      "excluded_platforms": ["aarch64-darwin", "x86_64-darwin"]
-    },
-    "flatpak-builder": {
-      "version": "1.4.2",
-      "excluded_platforms": ["aarch64-darwin", "x86_64-darwin"]
     }
   },
   "shell": {

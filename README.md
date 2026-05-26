@@ -39,6 +39,8 @@ make build      # outputs ./kpass
 
 ## Flatpak
 
+Requires `flatpak` and `flatpak-builder` installed via your system package manager (not devbox — they need system-level bwrap integration).
+
 ```bash
 make flatpak          # install SDK/runtime, vendor Go deps, build, install
 make flatpak-run      # launch com.benjih.KPass
