@@ -171,7 +171,11 @@ Kirigami.ApplicationWindow {
 
             onSaveDatabaseRequested: {
                 databaseManager.saveDatabase()
-                showPassiveNotification(Tr.i18n("Database saved"))
+                if (databaseManager.lastError !== "") {
+                    showPassiveNotification(Tr.i18n("Error saving: %1", databaseManager.lastError))
+                } else {
+                    showPassiveNotification(Tr.i18n("Database saved"))
+                }
             }
 
             onCloseDatabaseRequested: {

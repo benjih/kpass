@@ -62,7 +62,7 @@ func (m *Manager) Open(path, password string) bool {
 		m.lastError = err.Error()
 		return false
 	}
-	db.LockProtectedEntries()
+	// Entries remain unlocked for the session; the encoder re-locks on save.
 
 	m.db = db
 	m.filePath = path
@@ -82,7 +82,9 @@ func (m *Manager) Close() {
 
 func (m *Manager) Save() error {
 	if m.db == nil || m.filePath == "" {
-		return fmt.Errorf("no database open")
+		err := fmt.Errorf("no database open")
+		m.lastError = err.Error()
+		return err
 	}
 
 	// Write to a temp file in the same directory so the final os.Rename is
@@ -91,6 +93,7 @@ func (m *Manager) Save() error {
 	dir := filepath.Dir(m.filePath)
 	tmp, err := os.CreateTemp(dir, ".kpass-save-*")
 	if err != nil {
+		m.lastError = err.Error()
 		return err
 	}
 	tmpName := tmp.Name()
@@ -102,8 +105,10 @@ func (m *Manager) Save() error {
 	if encodeErr != nil || closeErr != nil {
 		os.Remove(tmpName)
 		if encodeErr != nil {
+			m.lastError = encodeErr.Error()
 			return encodeErr
 		}
+		m.lastError = closeErr.Error()
 		return closeErr
 	}
 
@@ -111,9 +116,11 @@ func (m *Manager) Save() error {
 	// partial write.
 	if err := os.Rename(tmpName, m.filePath); err != nil {
 		os.Remove(tmpName)
+		m.lastError = err.Error()
 		return err
 	}
 
+	m.lastError = ""
 	m.isModified = false
 	return nil
 }
@@ -210,12 +217,6 @@ func uuidToString(id [16]byte) string {
 }
 
 func (m *Manager) deleteByUUID(id string) bool {
-	if err := m.db.UnlockProtectedEntries(); err != nil {
-		m.lastError = err.Error()
-		return false
-	}
-	defer m.db.LockProtectedEntries()
-
 	for i := range m.db.Content.Root.Groups {
 		if m.deleteInGroup(id, &m.db.Content.Root.Groups[i]) {
 			return true
@@ -240,12 +241,6 @@ func (m *Manager) deleteInGroup(id string, group *gokeepasslib.Group) bool {
 }
 
 func (m *Manager) updateByUUID(id string, data map[string]string) bool {
-	if err := m.db.UnlockProtectedEntries(); err != nil {
-		m.lastError = err.Error()
-		return false
-	}
-	defer m.db.LockProtectedEntries()
-
 	for i := range m.db.Content.Root.Groups {
 		if m.updateInGroup(id, &m.db.Content.Root.Groups[i], data) {
 			return true
