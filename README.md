@@ -39,8 +39,6 @@ make build      # outputs ./kpass
 
 ## Flatpak
 
-Requires `flatpak` and `flatpak-builder` with the `flathub` remote configured.
-
 ```bash
 make flatpak          # install SDK/runtime, vendor Go deps, build, install
 make flatpak-run      # launch com.benjih.KPass
