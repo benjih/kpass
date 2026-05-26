@@ -125,7 +125,9 @@ Kirigami.ApplicationWindow {
         }
     }
 
-    pageStack.initialPage: splashPageComponent.createObject(pageStack)
+    pageStack.initialPage: splashPageComponent.createObject(pageStack, {
+        initialFilePath: initialFilePath
+    })
 
     Component {
         id: splashPageComponent
