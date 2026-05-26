@@ -1,5 +1,5 @@
 kpass
-bridge/moc_databasemanager.cpp
+internal/bridge/moc_databasemanager.cpp
 vendor/
 .flatpak-builder/
 repo/
