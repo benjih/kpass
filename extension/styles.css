@@ -1,0 +1,21 @@
+.kpass-fill-button {
+  display: block;
+  margin-top: 6px;
+  padding: 5px 12px;
+  font-size: 13px;
+  font-family: sans-serif;
+  color: #fff;
+  background-color: #3d6bbf;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  line-height: 1.4;
+}
+
+.kpass-fill-button:hover {
+  background-color: #2f56a0;
+}
+
+.kpass-fill-button:active {
+  background-color: #254a8c;
+}
