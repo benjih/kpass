@@ -188,6 +188,7 @@ Kirigami.ScrollablePage {
 
                 Controls.ToolButton {
                     icon.name: "download"
+                    visible: !detailsPage.isEditing
                     onClicked: {
                         detailsPage._pendingDownload = modelData
                         saveAttachmentDialog.open()
