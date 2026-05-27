@@ -102,7 +102,7 @@ func iconSharePaths() []string {
 	return paths
 }
 
-func setupUI(initialFilePath string) {
+func setupUI(initialFilePath, initialFillHost string) {
 	engine := qml.NewQQmlApplicationEngine()
 	engine.RootContext().SetContextProperty("databaseManager", bridge.NewDatabaseManager())
 
@@ -114,6 +114,10 @@ func setupUI(initialFilePath string) {
 	engine.RootContext().SetContextProperty2(
 		"initialFilePath",
 		qt.NewQVariant11(initialFilePath),
+	)
+	engine.RootContext().SetContextProperty2(
+		"initialFillHost",
+		qt.NewQVariant11(initialFillHost),
 	)
 
 	qmlDir := filepath.Join(root, "qml")

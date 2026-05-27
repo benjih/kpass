@@ -11,6 +11,11 @@ Kirigami.ScrollablePage {
     property string databasePath
     property string currentGroup: ""
     property var entries: []
+    property string hostFilter: ""
+
+    function urlHostname(urlStr) {
+        try { return new URL(urlStr).hostname } catch(e) { return "" }
+    }
 
     signal entrySelected(int index, var entryData)
     signal addEntryRequested()
@@ -54,7 +59,9 @@ Kirigami.ScrollablePage {
             var matchesSearch = searchField.text === ""
                     || entry.title.toLowerCase().indexOf(searchField.text.toLowerCase()) !== -1
                     || entry.username.toLowerCase().indexOf(searchField.text.toLowerCase()) !== -1
-            if (inGroup && matchesSearch) {
+            var matchesHost = hostFilter === ""
+                    || urlHostname(entry.url).toLowerCase() === hostFilter.toLowerCase()
+            if (inGroup && matchesSearch && matchesHost) {
                 count++
             }
         }
@@ -91,7 +98,9 @@ Kirigami.ScrollablePage {
                 var matchesSearch = searchField.text === ""
                         || modelData.title.toLowerCase().indexOf(searchField.text.toLowerCase()) !== -1
                         || modelData.username.toLowerCase().indexOf(searchField.text.toLowerCase()) !== -1
-                return inGroup && matchesSearch
+                var matchesHost = entriesPage.hostFilter === ""
+                        || entriesPage.urlHostname(modelData.url).toLowerCase() === entriesPage.hostFilter.toLowerCase()
+                return inGroup && matchesSearch && matchesHost
             }
             height: visible ? implicitHeight : 0
             highlighted: ListView.isCurrentItem
