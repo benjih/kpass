@@ -1,17 +1,17 @@
-package main
+package kde
 
 import (
 	"os"
 	"path/filepath"
 	"strings"
 
-	"github.com/benjih/kpass/internal/bridge"
 	"github.com/benjih/kpass/internal"
+	"github.com/benjih/kpass/internal/bridge"
 	qt "github.com/mappu/miqt/qt6"
 	"github.com/mappu/miqt/qt6/qml"
 )
 
-func setupKDEAppearance() {
+func SetupKDEAppearance() {
 	qt.QCoreApplication_SetApplicationName("KPass")
 	qt.QCoreApplication_SetOrganizationName("KDE")
 	qt.QCoreApplication_SetOrganizationDomain("kde.org")
@@ -59,7 +59,7 @@ func iconThemeSearchPaths() []string {
 	return paths
 }
 
-func kdePluginPaths() []string {
+func KdePluginPaths() []string {
 	root := internal.ProjectRoot()
 	profile := filepath.Join(root, ".devbox/nix/profile/default")
 
@@ -78,7 +78,7 @@ func kdePluginPaths() []string {
 	return paths
 }
 
-func iconSharePaths() []string {
+func IconSharePaths() []string {
 	var paths []string
 	seen := map[string]bool{}
 	add := func(share string) {
@@ -102,7 +102,7 @@ func iconSharePaths() []string {
 	return paths
 }
 
-func setupUI(initialFilePath, initialFillHost string) {
+func SetupUI(initialFilePath, initialFillHost string) {
 	engine := qml.NewQQmlApplicationEngine()
 	engine.RootContext().SetContextProperty("databaseManager", bridge.NewDatabaseManager())
 

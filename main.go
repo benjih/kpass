@@ -5,19 +5,21 @@ import (
 	"os"
 	"strings"
 
+	"github.com/benjih/kpass/internal/kde"
+	"github.com/benjih/kpass/internal/runtime"
 	qt "github.com/mappu/miqt/qt6"
 )
 
 func init() {
 	// Qt reads QT_PLUGIN_PATH and XDG_DATA_DIRS before QApplication starts.
-	setupRuntimeEnvironment()
+	runtime.SetupRuntimeEnvironment()
 }
 
 func main() {
 	qt.NewQApplication(os.Args)
-	setupKDEAppearance()
+	kde.SetupKDEAppearance()
 	filePath, fillHost := parseInitialArg()
-	setupUI(filePath, fillHost)
+	kde.SetupUI(filePath, fillHost)
 	qt.QApplication_Exec()
 }
 

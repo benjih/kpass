@@ -1,10 +1,10 @@
 //go:build flatpak
 
-package main
+package runtime
 
 import "os"
 
-func setupRuntimeEnvironment() {
+func SetupRuntimeEnvironment() {
 	if os.Getenv("QT_QUICK_CONTROLS_STYLE") == "" {
 		os.Setenv("QT_QUICK_CONTROLS_STYLE", "org.kde.desktop")
 	}

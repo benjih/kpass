@@ -1,6 +1,6 @@
 //go:build !flatpak
 
-package main
+package runtime
 
 import (
 	"os"

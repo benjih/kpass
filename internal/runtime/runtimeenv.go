@@ -1,23 +1,24 @@
 //go:build !flatpak
 
-package main
+package runtime
 
 import (
 	"os"
 	"path/filepath"
 
 	"github.com/benjih/kpass/internal"
+	"github.com/benjih/kpass/internal/kde"
 )
 
-// setupRuntimeEnvironment ensures devbox Qt/KDE paths work when the binary is
+// SetupRuntimeEnvironment ensures devbox Qt/KDE paths work when the binary is
 // launched without sourcing scripts/kde-env.sh (e.g. ./kpass after make build).
-func setupRuntimeEnvironment() {
+func SetupRuntimeEnvironment() {
 	root := internal.ProjectRoot()
 	profile := filepath.Join(root, ".devbox/nix/profile/default")
 	closure := internal.NixClosurePaths(profile)
 
-	pluginPaths := kdePluginPaths()
-	internal.AugmentEnvPath("XDG_DATA_DIRS", iconSharePaths()...)
+	pluginPaths := kde.KdePluginPaths()
+	internal.AugmentEnvPath("XDG_DATA_DIRS", kde.IconSharePaths()...)
 	internal.AugmentEnvPath("QT_PLUGIN_PATH", pluginPaths...)
 	internal.AugmentEnvPathFiltered("LD_LIBRARY_PATH", []string{"qtbase-", "qtdeclarative-"}, qtLibraryPaths(closure)...)
 	internal.AugmentEnvPath("QML2_IMPORT_PATH", qmlImportPaths(root, closure)...)
