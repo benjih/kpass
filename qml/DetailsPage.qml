@@ -174,21 +174,6 @@ Kirigami.ScrollablePage {
 
         KirigamiPrimitives.Separator {
             KirigamiLayouts.FormData.isSection: true
-            KirigamiLayouts.FormData.label: Tr.i18n("Additional Info")
-        }
-
-        Controls.TextArea {
-            id: notesField
-            KirigamiLayouts.FormData.label: Tr.i18n("Notes:")
-            text: entryNotes
-            placeholderText: Tr.i18n("Enter notes here...")
-            readOnly: !detailsPage.isEditing
-            Layout.fillWidth: true
-            Layout.minimumHeight: Kirigami.Units.gridUnit * 10
-        }
-
-        KirigamiPrimitives.Separator {
-            KirigamiLayouts.FormData.isSection: true
             KirigamiLayouts.FormData.label: Tr.i18n("Attachments")
         }
 
@@ -196,7 +181,10 @@ Kirigami.ScrollablePage {
             model: detailsPage.entryAttachments
             delegate: RowLayout {
                 KirigamiLayouts.FormData.label: modelData
+                Layout.fillWidth: true
                 spacing: Kirigami.Units.smallSpacing
+
+                Item { Layout.fillWidth: true }
 
                 Controls.ToolButton {
                     icon.name: "download"
@@ -230,6 +218,21 @@ Kirigami.ScrollablePage {
             text: Tr.i18n("Add Attachment")
             icon.name: "mail-attachment"
             onClicked: addAttachmentDialog.open()
+        }
+
+        KirigamiPrimitives.Separator {
+            KirigamiLayouts.FormData.isSection: true
+            KirigamiLayouts.FormData.label: Tr.i18n("Additional Info")
+        }
+
+        Controls.TextArea {
+            id: notesField
+            KirigamiLayouts.FormData.label: Tr.i18n("Notes:")
+            text: entryNotes
+            placeholderText: Tr.i18n("Enter notes here...")
+            readOnly: !detailsPage.isEditing
+            Layout.fillWidth: true
+            Layout.minimumHeight: Kirigami.Units.gridUnit * 10
         }
 
         Item {
