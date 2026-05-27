@@ -1,7 +1,5 @@
 #include "databasemanager.h"
 
-#include <QClipboard>
-#include <QGuiApplication>
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
@@ -18,6 +16,7 @@ int goUpdateEntry(int index, const char *title, const char *username, const char
                   const char *url, const char *notes);
 int goSaveDatabase();
 void goFreeString(char *s);
+void goCopyToClipboard(const char *text);
 }
 
 // parseEntriesJson deserialises the JSON produced by goGetEntriesJSON() into a
@@ -143,7 +142,7 @@ void DatabaseManager::updateEntry(int index, const QString &title, const QString
 
 void DatabaseManager::copyToClipboard(const QString &text)
 {
-    QGuiApplication::clipboard()->setText(text);
+    goCopyToClipboard(text.toUtf8().constData());
 }
 
 void DatabaseManager::saveDatabase()

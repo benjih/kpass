@@ -60,8 +60,8 @@ public:
                                  const QString &password, const QString &url, const QString &notes);
 
     // copyToClipboard writes text to the system clipboard.
-    // Static so QML can call it without a full database being open.
-    Q_INVOKABLE static void copyToClipboard(const QString &text);
+    // The Go layer handles the 10-second auto-clear timer.
+    Q_INVOKABLE void copyToClipboard(const QString &text);
 
     // saveDatabase flushes the current in-memory state to the original .kdbx file.
     Q_INVOKABLE void saveDatabase();

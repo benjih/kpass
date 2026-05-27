@@ -24,6 +24,9 @@ var (
 	// the mutex makes the cgo boundary safe against any future concurrency.
 	mu      sync.Mutex
 	manager = keepass.NewManager()
+
+	clipboardTimer    *qt6.QTimer
+	clipboardLastText string
 )
 
 // goOpenDatabase opens the .kdbx file at path with the given password.
@@ -151,6 +154,38 @@ func goFreeString(s *C.char) {
 	if s != nil {
 		C.free(unsafe.Pointer(s))
 	}
+}
+
+// goCopyToClipboard sets the system clipboard to text and starts a 10-second
+// timer that clears it — but only if the clipboard still holds that same text.
+// Restarting before the timer fires resets the window.
+//
+//export goCopyToClipboard
+func goCopyToClipboard(ctext *C.char) {
+	text := C.GoString(ctext)
+
+	mu.Lock()
+	clipboardLastText = text
+	mu.Unlock()
+
+	qt6.QGuiApplication_Clipboard().SetText(text)
+
+	if clipboardTimer == nil {
+		clipboardTimer = qt6.NewQTimer()
+		clipboardTimer.SetSingleShot(true)
+		clipboardTimer.OnTimeout(func() {
+			mu.Lock()
+			last := clipboardLastText
+			clipboardLastText = ""
+			mu.Unlock()
+
+			cb := qt6.QGuiApplication_Clipboard()
+			if cb.Text() == last {
+				cb.Clear()
+			}
+		})
+	}
+	clipboardTimer.Start(10_000)
 }
 
 // NewDatabaseManager allocates a DatabaseManager QObject and returns it as a
