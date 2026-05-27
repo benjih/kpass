@@ -1,5 +1,6 @@
 import QtQuick
 import QtQuick.Controls as Controls
+import QtQuick.Dialogs
 import QtQuick.Layouts
 import org.kde.kirigami as Kirigami
 import org.kde.kirigami.layouts as KirigamiLayouts
@@ -21,7 +22,10 @@ Kirigami.ScrollablePage {
     property string entryUrl
     property string entryNotes
     property string entryIcon
+    property var entryAttachments: []
     property bool isEditing: false
+
+    property string _pendingDownload: ""
 
     signal entryUpdated(int entryIdx, string newTitle, string newUsername, string newPassword, string newUrl, string newNotes)
     signal entryDeleted(int entryIdx)
@@ -183,8 +187,92 @@ Kirigami.ScrollablePage {
             Layout.minimumHeight: Kirigami.Units.gridUnit * 10
         }
 
+        KirigamiPrimitives.Separator {
+            KirigamiLayouts.FormData.isSection: true
+            KirigamiLayouts.FormData.label: Tr.i18n("Attachments")
+        }
+
+        Repeater {
+            model: detailsPage.entryAttachments
+            delegate: RowLayout {
+                KirigamiLayouts.FormData.label: modelData
+                Layout.fillWidth: true
+                spacing: Kirigami.Units.smallSpacing
+
+                Controls.Label {
+                    text: modelData
+                    Layout.fillWidth: true
+                    elide: Text.ElideRight
+                }
+
+                Controls.ToolButton {
+                    icon.name: "document-save"
+                    tooltip: Tr.i18n("Download")
+                    onClicked: {
+                        detailsPage._pendingDownload = modelData
+                        saveAttachmentDialog.open()
+                    }
+                }
+
+                Controls.ToolButton {
+                    icon.name: "edit-delete"
+                    tooltip: Tr.i18n("Remove")
+                    visible: detailsPage.isEditing
+                    onClicked: {
+                        databaseManager.deleteAttachment(detailsPage.entryIndex, modelData)
+                        showPassiveNotification(Tr.i18n("Attachment removed"))
+                    }
+                }
+            }
+        }
+
+        Controls.Label {
+            KirigamiLayouts.FormData.label: ""
+            text: Tr.i18n("No attachments")
+            visible: detailsPage.entryAttachments.length === 0
+            color: Kirigami.Theme.disabledTextColor
+        }
+
+        Controls.Button {
+            KirigamiLayouts.FormData.label: ""
+            visible: detailsPage.isEditing
+            text: Tr.i18n("Add Attachment")
+            icon.name: "mail-attachment"
+            onClicked: addAttachmentDialog.open()
+        }
+
         Item {
             KirigamiLayouts.FormData.isSection: true
+        }
+    }
+
+    Connections {
+        target: databaseManager
+        function onEntriesChanged() {
+            var ents = databaseManager.entries
+            if (detailsPage.entryIndex >= 0 && detailsPage.entryIndex < ents.length) {
+                detailsPage.entryAttachments = ents[detailsPage.entryIndex].attachments || []
+            }
+        }
+    }
+
+    FileDialog {
+        id: saveAttachmentDialog
+        fileMode: FileDialog.SaveFile
+        title: Tr.i18n("Save Attachment")
+        onAccepted: {
+            databaseManager.saveAttachment(detailsPage.entryIndex, detailsPage._pendingDownload, selectedFile)
+            showPassiveNotification(Tr.i18n("Attachment saved"))
+        }
+    }
+
+    FileDialog {
+        id: addAttachmentDialog
+        fileMode: FileDialog.OpenFile
+        title: Tr.i18n("Add Attachment")
+        onAccepted: {
+            databaseManager.addAttachment(detailsPage.entryIndex, selectedFile)
+            showPassiveNotification(Tr.i18n("Attachment added"))
         }
     }
 }
