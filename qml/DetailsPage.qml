@@ -196,17 +196,10 @@ Kirigami.ScrollablePage {
             model: detailsPage.entryAttachments
             delegate: RowLayout {
                 KirigamiLayouts.FormData.label: modelData
-                Layout.fillWidth: true
                 spacing: Kirigami.Units.smallSpacing
 
-                Controls.Label {
-                    text: modelData
-                    Layout.fillWidth: true
-                    elide: Text.ElideRight
-                }
-
                 Controls.ToolButton {
-                    icon.name: "document-save"
+                    icon.name: "download"
                     onClicked: {
                         detailsPage._pendingDownload = modelData
                         saveAttachmentDialog.open()
