@@ -56,16 +56,22 @@ Kirigami.ScrollablePage {
         for (var i = 0; i < entries.length; ++i) {
             var entry = entries[i]
             var inGroup = currentGroup === "" || currentGroup === "All Entries" || entry["group"] === currentGroup
-            var matchesSearch = searchField.text === ""
-                    || entry.title.toLowerCase().indexOf(searchField.text.toLowerCase()) !== -1
-                    || entry.username.toLowerCase().indexOf(searchField.text.toLowerCase()) !== -1
-            var matchesHost = hostFilter === ""
-                    || urlHostname(entry.url).toLowerCase() === hostFilter.toLowerCase()
-            if (inGroup && matchesSearch && matchesHost) {
+            var q = searchField.text.toLowerCase()
+            var matchesSearch = q === ""
+                    || entry.title.toLowerCase().indexOf(q) !== -1
+                    || entry.username.toLowerCase().indexOf(q) !== -1
+                    || urlHostname(entry.url).toLowerCase().indexOf(q) !== -1
+            if (inGroup && matchesSearch) {
                 count++
             }
         }
         return count
+    }
+
+    Component.onCompleted: {
+        if (hostFilter !== "") {
+            searchField.text = hostFilter
+        }
     }
 
     header: ColumnLayout {
@@ -95,12 +101,12 @@ Kirigami.ScrollablePage {
             id: delegate
             visible: {
                 var inGroup = entriesPage.currentGroup === "" || entriesPage.currentGroup === "All Entries" || modelData["group"] === entriesPage.currentGroup
-                var matchesSearch = searchField.text === ""
-                        || modelData.title.toLowerCase().indexOf(searchField.text.toLowerCase()) !== -1
-                        || modelData.username.toLowerCase().indexOf(searchField.text.toLowerCase()) !== -1
-                var matchesHost = entriesPage.hostFilter === ""
-                        || entriesPage.urlHostname(modelData.url).toLowerCase() === entriesPage.hostFilter.toLowerCase()
-                return inGroup && matchesSearch && matchesHost
+                var q = searchField.text.toLowerCase()
+                var matchesSearch = q === ""
+                        || modelData.title.toLowerCase().indexOf(q) !== -1
+                        || modelData.username.toLowerCase().indexOf(q) !== -1
+                        || entriesPage.urlHostname(modelData.url).toLowerCase().indexOf(q) !== -1
+                return inGroup && matchesSearch
             }
             height: visible ? implicitHeight : 0
             highlighted: ListView.isCurrentItem
