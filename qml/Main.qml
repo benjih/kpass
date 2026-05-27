@@ -155,6 +155,7 @@ Kirigami.ApplicationWindow {
         EntriesPage {
             currentGroup: root.currentGroup
             entries: databaseManager.entries
+            hostFilter: initialFillHost
 
             onEntrySelected: function(index, entryData) {
                 pageStack.push(detailsPageComponent.createObject(pageStack, {
