@@ -207,7 +207,6 @@ Kirigami.ScrollablePage {
 
                 Controls.ToolButton {
                     icon.name: "document-save"
-                    tooltip: Tr.i18n("Download")
                     onClicked: {
                         detailsPage._pendingDownload = modelData
                         saveAttachmentDialog.open()
@@ -216,7 +215,6 @@ Kirigami.ScrollablePage {
 
                 Controls.ToolButton {
                     icon.name: "edit-delete"
-                    tooltip: Tr.i18n("Remove")
                     visible: detailsPage.isEditing
                     onClicked: {
                         databaseManager.deleteAttachment(detailsPage.entryIndex, modelData)
