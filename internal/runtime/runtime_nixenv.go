@@ -1,4 +1,4 @@
-//go:build !flatpak
+//go:build !flatpak && !appimage
 
 package runtime
 

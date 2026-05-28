@@ -1,0 +1,12 @@
+#!/bin/sh
+set -e
+
+APPDIR="$(dirname "$(readlink -f "$0")")"
+export APPDIR
+
+export LD_LIBRARY_PATH="$APPDIR/usr/lib:${LD_LIBRARY_PATH}"
+export QT_PLUGIN_PATH="$APPDIR/usr/plugins"
+export QML2_IMPORT_PATH="$APPDIR/usr/qml"
+export XDG_DATA_DIRS="$APPDIR/usr/share:${XDG_DATA_DIRS:-/usr/local/share:/usr/share}"
+
+exec "$APPDIR/usr/bin/kpass" "$@"

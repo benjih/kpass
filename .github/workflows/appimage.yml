@@ -1,0 +1,63 @@
+name: Build AppImage
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  appimage:
+    runs-on: ubuntu-22.04
+    env:
+      ARCH: x86_64
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: jetify-com/devbox-install-action@v0.14.0
+        with:
+          enable-cache: true
+
+      # Install Qt 6, KDE Frameworks, and build tools from apt.
+      # ubuntu-22.04 ships Qt 6.2; for a newer Qt 6 use the qt6-official PPA.
+      - name: Install Qt 6 and KDE Frameworks dev packages
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends \
+            qt6-base-dev \
+            qt6-declarative-dev \
+            qt6-wayland-dev \
+            libkf6kirigami2-dev \
+            kirigami2-dev \
+            qml6-module-org-kde-kirigami \
+            qml6-module-qtquick-controls \
+            qml6-module-qtquick-layouts \
+            libfuse2
+
+      - name: Resolve qmake path
+        run: echo "QMAKE=$(command -v qmake6 || command -v qmake)" >> "$GITHUB_ENV"
+
+      # Download linuxdeploy, plugin-qt, and appimagetool as AppImages.
+      - name: Download AppImage tooling
+        run: |
+          cd appimage
+          wget -q "https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage"
+          wget -q "https://github.com/linuxdeploy/linuxdeploy-plugin-qt/releases/download/continuous/linuxdeploy-plugin-qt-x86_64.AppImage"
+          wget -q "https://github.com/AppImage/appimagetool/releases/download/continuous/appimagetool-x86_64.AppImage"
+          chmod +x linuxdeploy-x86_64.AppImage linuxdeploy-plugin-qt-x86_64.AppImage appimagetool-x86_64.AppImage
+
+      - name: Build AppImage
+        run: devbox run -- make appimage
+
+      - name: Upload AppImage artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: KPass-AppImage
+          path: KPass-${{ env.ARCH }}.AppImage
+
+      - name: Attach AppImage to release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: KPass-${{ env.ARCH }}.AppImage

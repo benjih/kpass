@@ -1,5 +1,6 @@
 .PHONY: run build generate moc \
-	flatpak flatpak-deps flatpak-vendor flatpak-build flatpak-install flatpak-run flatpak-rebuild flatpak-clean
+	flatpak flatpak-deps flatpak-vendor flatpak-build flatpak-install flatpak-run flatpak-rebuild flatpak-clean \
+	appimage appimage-deps appimage-build appimage-appdir appimage-clean
 
 FLATPAK_MANIFEST := flatpak/com.benjih.KPass.yaml
 FLATPAK_ID := com.benjih.KPass
@@ -71,3 +72,34 @@ flatpak-clean:
 
 flatpak-rebuild: flatpak-clean
 	$(MAKE) flatpak
+
+# AppImage: build binary, assemble AppDir, and package with appimagetool.
+# Requires: QMAKE env var pointing to qmake6, and linuxdeploy / linuxdeploy-plugin-qt /
+# appimagetool either in PATH or as AppImages placed in appimage/.
+ARCH ?= x86_64
+APPIMAGE_OUTPUT ?= KPass-$(ARCH).AppImage
+
+APPIMAGE_TOOLS_DIR := appimage
+LINUXDEPLOY_BASE_URL := https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous
+LINUXDEPLOY_QT_BASE_URL := https://github.com/linuxdeploy/linuxdeploy-plugin-qt/releases/download/continuous
+APPIMAGETOOL_BASE_URL := https://github.com/AppImage/appimagetool/releases/download/continuous
+
+appimage: appimage-deps appimage-build appimage-appdir
+
+appimage-deps:
+	@command -v wget >/dev/null || (echo "Install wget" && exit 1)
+	wget -qNP $(APPIMAGE_TOOLS_DIR) $(LINUXDEPLOY_BASE_URL)/linuxdeploy-$(ARCH).AppImage
+	wget -qNP $(APPIMAGE_TOOLS_DIR) $(LINUXDEPLOY_QT_BASE_URL)/linuxdeploy-plugin-qt-$(ARCH).AppImage
+	wget -qNP $(APPIMAGE_TOOLS_DIR) $(APPIMAGETOOL_BASE_URL)/appimagetool-$(ARCH).AppImage
+	chmod +x $(APPIMAGE_TOOLS_DIR)/linuxdeploy-$(ARCH).AppImage \
+		$(APPIMAGE_TOOLS_DIR)/linuxdeploy-plugin-qt-$(ARCH).AppImage \
+		$(APPIMAGE_TOOLS_DIR)/appimagetool-$(ARCH).AppImage
+
+appimage-build: generate
+	go build -tags appimage -trimpath -ldflags="-s -w" -o kpass .
+
+appimage-appdir: appimage-build
+	bash appimage/build.sh
+
+appimage-clean:
+	rm -rf AppDir $(APPIMAGE_OUTPUT)
