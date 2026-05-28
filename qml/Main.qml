@@ -165,7 +165,8 @@ Kirigami.ApplicationWindow {
                     entryPassword: entryData.password,
                     entryUrl: entryData.url,
                     entryNotes: entryData.notes,
-                    entryIcon: entryData.icon
+                    entryIcon: entryData.icon,
+                    entryAttachments: entryData.attachments || []
                 }))
             }
 

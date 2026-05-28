@@ -192,14 +192,19 @@ func (m *Manager) walkGroup(group *gokeepasslib.Group, seenGroups map[string]str
 }
 
 func entryFromLib(groupName string, entry gokeepasslib.Entry) Entry {
+	attachments := make([]Attachment, len(entry.Binaries))
+	for i, ref := range entry.Binaries {
+		attachments[i] = Attachment{Name: ref.Name}
+	}
 	return Entry{
-		Group:    groupName,
-		Title:    entry.GetTitle(),
-		Username: valueContent(entry, "UserName", "User"),
-		UUID:     uuidToString(entry.UUID),
-		Password: valueContent(entry, "Password"),
-		URL:      valueContent(entry, "URL"),
-		Notes:    valueContent(entry, "Notes"),
+		Group:       groupName,
+		Title:       entry.GetTitle(),
+		Username:    valueContent(entry, "UserName", "User"),
+		UUID:        uuidToString(entry.UUID),
+		Password:    valueContent(entry, "Password"),
+		URL:         valueContent(entry, "URL"),
+		Notes:       valueContent(entry, "Notes"),
+		Attachments: attachments,
 	}
 }
 
@@ -285,6 +290,83 @@ func (m *Manager) updateInGroup(id string, group *gokeepasslib.Group, data map[s
 		}
 	}
 	return false
+}
+
+func (m *Manager) GetAttachmentData(entryIndex int, filename string) ([]byte, error) {
+	if m.db == nil || entryIndex < 0 || entryIndex >= len(m.entries) {
+		return nil, fmt.Errorf("invalid entry index")
+	}
+	entry := m.findEntryByUUID(m.entries[entryIndex].UUID)
+	if entry == nil {
+		return nil, fmt.Errorf("entry not found")
+	}
+	for _, ref := range entry.Binaries {
+		if ref.Name == filename {
+			bin := m.db.FindBinary(ref.Value.ID)
+			if bin == nil {
+				return nil, fmt.Errorf("binary not found in database")
+			}
+			return bin.GetContentBytes()
+		}
+	}
+	return nil, fmt.Errorf("attachment not found: %s", filename)
+}
+
+func (m *Manager) AddAttachment(entryIndex int, filename string, data []byte) bool {
+	if m.db == nil || entryIndex < 0 || entryIndex >= len(m.entries) {
+		return false
+	}
+	entry := m.findEntryByUUID(m.entries[entryIndex].UUID)
+	if entry == nil {
+		return false
+	}
+	bin := m.db.AddBinary(data)
+	entry.Binaries = append(entry.Binaries, bin.CreateReference(filename))
+	m.rebuildIndex()
+	m.isModified = true
+	return true
+}
+
+func (m *Manager) DeleteAttachment(entryIndex int, filename string) bool {
+	if m.db == nil || entryIndex < 0 || entryIndex >= len(m.entries) {
+		return false
+	}
+	entry := m.findEntryByUUID(m.entries[entryIndex].UUID)
+	if entry == nil {
+		return false
+	}
+	for i, ref := range entry.Binaries {
+		if ref.Name == filename {
+			entry.Binaries = append(entry.Binaries[:i], entry.Binaries[i+1:]...)
+			m.rebuildIndex()
+			m.isModified = true
+			return true
+		}
+	}
+	return false
+}
+
+func (m *Manager) findEntryByUUID(uuid string) *gokeepasslib.Entry {
+	for i := range m.db.Content.Root.Groups {
+		if e := m.findEntryInGroup(uuid, &m.db.Content.Root.Groups[i]); e != nil {
+			return e
+		}
+	}
+	return nil
+}
+
+func (m *Manager) findEntryInGroup(uuid string, group *gokeepasslib.Group) *gokeepasslib.Entry {
+	for i := range group.Entries {
+		if uuidToString(group.Entries[i].UUID) == uuid {
+			return &group.Entries[i]
+		}
+	}
+	for i := range group.Groups {
+		if e := m.findEntryInGroup(uuid, &group.Groups[i]); e != nil {
+			return e
+		}
+	}
+	return nil
 }
 
 func fileURLToPath(path string) string {

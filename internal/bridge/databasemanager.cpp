@@ -1,5 +1,7 @@
 #include "databasemanager.h"
 
+#include <QFile>
+#include <QFileInfo>
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
@@ -17,6 +19,9 @@ int goUpdateEntry(int index, const char *title, const char *username, const char
 int goSaveDatabase();
 void goFreeString(char *s);
 void goCopyToClipboard(const char *text);
+char *goGetAttachmentData(int index, const char *filename, int *outLen);
+int goAddAttachment(int index, const char *filename, const char *data, int dataLen);
+int goDeleteAttachment(int index, const char *filename);
 }
 
 // parseEntriesJson deserialises the JSON produced by goGetEntriesJSON() into a
@@ -44,6 +49,12 @@ static QVariantList parseEntriesJson(const char *json)
         map.insert(QStringLiteral("password"), obj.value(QStringLiteral("password")).toString());
         map.insert(QStringLiteral("url"), obj.value(QStringLiteral("url")).toString());
         map.insert(QStringLiteral("notes"), obj.value(QStringLiteral("notes")).toString());
+        QStringList attachments;
+        const QJsonArray atArr = obj.value(QStringLiteral("attachments")).toArray();
+        for (const QJsonValue &at : atArr) {
+            attachments.append(at.toString());
+        }
+        map.insert(QStringLiteral("attachments"), attachments);
         out.append(map);
     }
     return out;
@@ -154,6 +165,51 @@ void DatabaseManager::saveDatabase()
 QString DatabaseManager::lastError() const
 {
     return m_lastError;
+}
+
+void DatabaseManager::saveAttachment(int index, const QString &filename, const QString &savePath)
+{
+    int dataLen = 0;
+    char *raw = goGetAttachmentData(index, filename.toUtf8().constData(), &dataLen);
+    if (!raw) {
+        refreshFromGo();
+        return;
+    }
+    const QByteArray bytes(raw, dataLen);
+    goFreeString(raw);
+
+    QString localPath = QUrl(savePath).toLocalFile();
+    if (localPath.isEmpty())
+        localPath = savePath;
+
+    QFile file(localPath);
+    if (file.open(QIODevice::WriteOnly)) {
+        file.write(bytes);
+        file.close();
+    }
+}
+
+void DatabaseManager::addAttachment(int index, const QString &filePath)
+{
+    QString localPath = QUrl(filePath).toLocalFile();
+    if (localPath.isEmpty())
+        localPath = filePath;
+
+    QFile file(localPath);
+    if (!file.open(QIODevice::ReadOnly))
+        return;
+    const QByteArray data = file.readAll();
+    file.close();
+
+    const QString name = QFileInfo(localPath).fileName();
+    goAddAttachment(index, name.toUtf8().constData(), data.constData(), data.size());
+    refreshFromGo();
+}
+
+void DatabaseManager::deleteAttachment(int index, const QString &filename)
+{
+    goDeleteAttachment(index, filename.toUtf8().constData());
+    refreshFromGo();
 }
 
 // newDatabaseManager is the C factory called from Go's bridge.NewDatabaseManager.

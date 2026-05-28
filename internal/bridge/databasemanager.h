@@ -5,6 +5,7 @@
 #include <QString>
 #include <QVariantList>
 #include <QStringList>
+#include <QFileInfo>
 
 /**
  * DatabaseManager is the QML-facing interface to the Go KeePass backend.
@@ -65,6 +66,17 @@ public:
 
     // saveDatabase flushes the current in-memory state to the original .kdbx file.
     Q_INVOKABLE void saveDatabase();
+
+    // saveAttachment reads the named attachment from the entry at index and
+    // writes its bytes to savePath (a file:// URL or plain path).
+    Q_INVOKABLE void saveAttachment(int index, const QString &filename, const QString &savePath);
+
+    // addAttachment reads the file at filePath and attaches it to the entry at
+    // index, using the file's base name as the attachment name.
+    Q_INVOKABLE void addAttachment(int index, const QString &filePath);
+
+    // deleteAttachment removes the named attachment from the entry at index.
+    Q_INVOKABLE void deleteAttachment(int index, const QString &filename);
 
     // lastError returns the cached error string (see Q_PROPERTY above).
     Q_INVOKABLE QString lastError() const;

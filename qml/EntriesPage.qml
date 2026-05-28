@@ -118,7 +118,8 @@ Kirigami.ScrollablePage {
                     password: modelData.password,
                     url: modelData.url,
                     notes: modelData.notes,
-                    icon: "key-enter"
+                    icon: "key-enter",
+                    attachments: modelData.attachments || []
                 })
             }
 
