@@ -215,6 +215,8 @@ Kirigami.ScrollablePage {
 
         Controls.Button {
             KirigamiLayouts.FormData.label: ""
+            Layout.fillWidth: true
+            Layout.alignment: Qt.AlignHCenter
             visible: detailsPage.isEditing
             text: Tr.i18n("Add Attachment")
             icon.name: "mail-attachment"
