@@ -1,4 +1,4 @@
-.PHONY: run build generate moc \
+.PHONY: run build generate moc test \
 	flatpak flatpak-deps flatpak-vendor flatpak-build flatpak-install flatpak-run flatpak-rebuild flatpak-clean
 
 FLATPAK_MANIFEST := flatpak/com.benjih.KPass.yaml
@@ -9,6 +9,9 @@ FLATPAK_BUILD_DIR := flatpak-build
 FLATPAK_REMOTE := flathub
 FLATPAK_RUNTIME_VERSION := 6.10
 FLATPAK_GOLANG_EXT_VERSION := 25.08
+
+test:
+	go test ./internal/args/ ./internal/keepass/ ./internal/
 
 run: generate
 	. scripts/kde-env.sh && go run .
