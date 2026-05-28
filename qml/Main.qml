@@ -147,6 +147,20 @@ Kirigami.ApplicationWindow {
                     showPassiveNotification(Tr.i18n("Error: %1", error))
                 }
             }
+
+            onDatabaseCreated: function(url, password) {
+                if (databaseManager.createDatabase(url, password)) {
+                    root.addRecentFile(url)
+                    root.databaseOpen = true
+                    pageStack.replace(entriesPageComponent.createObject(pageStack, { databasePath: url }))
+                } else {
+                    var error = databaseManager.lastError
+                    if (error === "") {
+                        error = Tr.i18n("Failed to create database.")
+                    }
+                    showPassiveNotification(Tr.i18n("Error: %1", error))
+                }
+            }
         }
     }
 

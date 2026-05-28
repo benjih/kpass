@@ -8,6 +8,7 @@
 #include <QUrl>
 
 extern "C" {
+int goCreateDatabase(const char *path, const char *password);
 int goOpenDatabase(const char *path, const char *password);
 void goCloseDatabase();
 char *goGetEntriesJSON();
@@ -101,6 +102,18 @@ void DatabaseManager::refreshFromGo()
     emit entriesChanged();
     emit groupsChanged();
     emit lastErrorChanged();
+}
+
+bool DatabaseManager::createDatabase(const QString &path, const QString &password)
+{
+    QString localPath = QUrl(path).toLocalFile();
+    if (localPath.isEmpty()) {
+        localPath = path;
+    }
+
+    const bool ok = goCreateDatabase(localPath.toUtf8().constData(), password.toUtf8().constData()) != 0;
+    refreshFromGo();
+    return ok;
 }
 
 bool DatabaseManager::openDatabase(const QString &path, const QString &password)

@@ -71,6 +71,42 @@ func (m *Manager) Open(path, password string) bool {
 	return true
 }
 
+func (m *Manager) Create(path, password string) bool {
+	m.lastError = ""
+	path = fileURLToPath(path)
+
+	db := gokeepasslib.NewDatabase()
+	db.Credentials = gokeepasslib.NewPasswordCredentials(password)
+
+	dir := filepath.Dir(path)
+	tmp, err := os.CreateTemp(dir, ".kpass-save-*")
+	if err != nil {
+		m.lastError = err.Error()
+		return false
+	}
+	tmpName := tmp.Name()
+
+	encodeErr := gokeepasslib.NewEncoder(tmp).Encode(db)
+	closeErr := tmp.Close()
+	if encodeErr != nil || closeErr != nil {
+		os.Remove(tmpName)
+		if encodeErr != nil {
+			m.lastError = encodeErr.Error()
+		} else {
+			m.lastError = closeErr.Error()
+		}
+		return false
+	}
+
+	if err := os.Rename(tmpName, path); err != nil {
+		os.Remove(tmpName)
+		m.lastError = err.Error()
+		return false
+	}
+
+	return m.Open(path, password)
+}
+
 func (m *Manager) Close() {
 	m.db = nil
 	m.filePath = ""

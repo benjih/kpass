@@ -18,6 +18,7 @@ Kirigami.Page {
     signal openFileRequested()
     signal recentFileSelected(string url)
     signal databaseUnlocked(string url, string password)
+    signal databaseCreated(string url, string password)
 
     Component.onCompleted: {
         if (initialFilePath !== "") {
@@ -76,6 +77,14 @@ Kirigami.Page {
             Layout.alignment: Qt.AlignHCenter
             highlighted: true
             onClicked: fileDialog.open()
+        }
+
+        Controls.Button {
+            text: Tr.i18n("Create New Database")
+            icon.name: "document-new"
+            Layout.preferredWidth: Kirigami.Units.gridUnit * 12
+            Layout.alignment: Qt.AlignHCenter
+            onClicked: createFileDialog.open()
         }
 
         ColumnLayout {
@@ -162,6 +171,95 @@ Kirigami.Page {
                 Layout.fillWidth: true
                 placeholderText: Tr.i18n("Password")
                 onAccepted: passwordDialog.accept()
+            }
+        }
+    }
+
+    FileDialog {
+        id: createFileDialog
+        title: Tr.i18n("Create Password Database")
+        currentFolder: StandardPaths.standardLocations(StandardPaths.HomeLocation)[0]
+        fileMode: FileDialog.SaveFile
+        defaultSuffix: "kdbx"
+        nameFilters: ["KeePass Database (*.kdbx)", "All files (*)"]
+        onAccepted: {
+            createPasswordDialog.databaseUrl = selectedFile
+            createPasswordDialog.open()
+        }
+    }
+
+    Controls.Dialog {
+        id: createPasswordDialog
+        title: Tr.i18n("Set Master Password")
+        anchors.centerIn: parent
+        modal: true
+        width: Kirigami.Units.gridUnit * 20
+        standardButtons: Controls.Dialog.Ok | Controls.Dialog.Cancel
+
+        property string databaseUrl: ""
+
+        onOpened: {
+            createNewPasswordField.text = ""
+            createConfirmField.text = ""
+            createErrorLabel.text = ""
+            createNewPasswordField.forceActiveFocus()
+        }
+
+        onAccepted: {
+            if (createNewPasswordField.text === "") {
+                createErrorLabel.text = Tr.i18n("Password cannot be empty.")
+                Qt.callLater(createPasswordDialog.open)
+                return
+            }
+            if (createNewPasswordField.text !== createConfirmField.text) {
+                createErrorLabel.text = Tr.i18n("Passwords do not match.")
+                Qt.callLater(createPasswordDialog.open)
+                return
+            }
+            splashPage.databaseCreated(databaseUrl, createNewPasswordField.text)
+            createNewPasswordField.text = ""
+            createConfirmField.text = ""
+            createErrorLabel.text = ""
+        }
+
+        onRejected: {
+            createNewPasswordField.text = ""
+            createConfirmField.text = ""
+            createErrorLabel.text = ""
+        }
+
+        contentItem: ColumnLayout {
+            spacing: Kirigami.Units.smallSpacing
+
+            Controls.Label {
+                text: Tr.i18n("Set a master password for the new database:")
+                font.bold: true
+                wrapMode: Text.WordWrap
+                Layout.fillWidth: true
+            }
+
+            Controls.TextField {
+                id: createNewPasswordField
+                echoMode: TextInput.Password
+                Layout.fillWidth: true
+                placeholderText: Tr.i18n("Password")
+            }
+
+            Controls.TextField {
+                id: createConfirmField
+                echoMode: TextInput.Password
+                Layout.fillWidth: true
+                placeholderText: Tr.i18n("Confirm Password")
+                onAccepted: createPasswordDialog.accept()
+            }
+
+            Controls.Label {
+                id: createErrorLabel
+                text: ""
+                color: Kirigami.Theme.negativeTextColor
+                visible: text !== ""
+                wrapMode: Text.WordWrap
+                Layout.fillWidth: true
             }
         }
     }

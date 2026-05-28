@@ -43,6 +43,19 @@ func goOpenDatabase(path *C.char, password *C.char) C.int {
 	return 0
 }
 
+// goCreateDatabase creates a new .kdbx file at path with the given master
+// password and opens it in the manager. Returns 1 on success, 0 on failure.
+//
+//export goCreateDatabase
+func goCreateDatabase(path *C.char, password *C.char) C.int {
+	mu.Lock()
+	defer mu.Unlock()
+	if manager.Create(C.GoString(path), C.GoString(password)) {
+		return 1
+	}
+	return 0
+}
+
 // goCloseDatabase releases the currently open database from Go memory.
 //
 //export goCloseDatabase

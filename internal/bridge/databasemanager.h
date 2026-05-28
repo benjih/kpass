@@ -37,6 +37,10 @@ class DatabaseManager : public QObject
 public:
     explicit DatabaseManager(QObject *parent = nullptr);
 
+    // createDatabase creates a new .kdbx file at path with the given master
+    // password and opens it. Returns true on success; check lastError on failure.
+    Q_INVOKABLE bool createDatabase(const QString &path, const QString &password);
+
     // openDatabase unlocks the .kdbx file at path with password.
     // path may be a local file path or a QML file:// URL — both are handled.
     // Returns true on success; check lastError on failure.
