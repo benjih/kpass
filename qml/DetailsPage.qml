@@ -2,6 +2,7 @@ import QtQuick
 import QtQuick.Controls as Controls
 import QtQuick.Dialogs
 import QtQuick.Layouts
+import QtCore
 import org.kde.kirigami as Kirigami
 import org.kde.kirigami.layouts as KirigamiLayouts
 import org.kde.kirigami.primitives as KirigamiPrimitives
@@ -257,6 +258,7 @@ Kirigami.ScrollablePage {
         id: saveAttachmentDialog
         fileMode: FileDialog.SaveFile
         title: Tr.i18n("Save Attachment")
+        currentFile: StandardPaths.writableLocation(StandardPaths.DownloadLocation) + "/" + detailsPage._pendingDownload
         onAccepted: {
             databaseManager.saveAttachment(detailsPage.entryIndex, detailsPage._pendingDownload, selectedFile)
             showPassiveNotification(Tr.i18n("Attachment saved"))
