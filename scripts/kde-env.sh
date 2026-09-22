@@ -78,12 +78,13 @@ if [ -n "$LD_PREFIX" ] || [ -n "$LD_REST" ]; then
 fi
 
 kde_qml_paths() {
-  local paths=""
+  local paths="" stores store
   if [ -d "${DEVBOX_PROJECT_ROOT:-.}/.devbox/nix/profile/default/lib/qt-6/qml" ]; then
     paths="${DEVBOX_PROJECT_ROOT:-.}/.devbox/nix/profile/default/lib/qt-6/qml"
   fi
   if command -v nix-store >/dev/null 2>&1; then
-    while IFS= read -r store; do
+    stores="$(profile_store_paths)"
+    for store in $stores; do
       if [ -d "$store/lib/qt-6/qml" ]; then
         if [ -n "$paths" ]; then
           paths="$paths:$store/lib/qt-6/qml"
@@ -91,13 +92,13 @@ kde_qml_paths() {
           paths="$store/lib/qt-6/qml"
         fi
       fi
-    done < <(profile_store_paths)
+    done
   fi
   printf '%s' "$paths"
 }
 
 kde_plugin_paths() {
-  local paths=""
+  local paths="" stores store
   append_if_exists() {
     local p="$1"
     if [ -d "$p" ]; then
@@ -113,9 +114,10 @@ kde_plugin_paths() {
     append_if_exists "$QTBASE/lib/qt-6/plugins"
   fi
   if command -v nix-store >/dev/null 2>&1; then
-    while IFS= read -r store; do
+    stores="$(profile_store_paths)"
+    for store in $stores; do
       append_if_exists "$store/lib/qt-6/plugins"
-    done < <(profile_store_paths)
+    done
   fi
   printf '%s' "$paths"
 }
