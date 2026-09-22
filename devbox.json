@@ -1,31 +1,31 @@
 {
   "$schema": "https://raw.githubusercontent.com/jetify-com/devbox/0.17.0/.schema/devbox.schema.json",
   "packages": {
-    "go": "1.26.2",
     "kdePackages.kirigami": {
-      "version": "6.18.0",
+      "version":            "6.18.0",
       "excluded_platforms": ["aarch64-darwin"]
     },
     "kdePackages.kiconthemes": {
-      "version": "6.18.0",
+      "version":            "6.18.0",
       "excluded_platforms": ["aarch64-darwin"]
     },
     "kdePackages.qqc2-desktop-style": {
-      "version": "6.18.0",
+      "version":            "6.18.0",
       "excluded_platforms": ["aarch64-darwin"]
     },
     "kdePackages.breeze-icons": {
-      "version": "6.18.0",
+      "version":            "6.18.0",
       "excluded_platforms": ["aarch64-darwin"]
     },
     "kdePackages.kcolorscheme": {
-      "version": "6.18.0",
+      "version":            "6.18.0",
       "excluded_platforms": ["aarch64-darwin"]
     },
     "kdePackages.frameworkintegration": {
-      "version": "6.18.0",
+      "version":            "6.18.0",
       "excluded_platforms": ["aarch64-darwin"]
-    }
+    },
+    "go": "1.27.0"
   },
   "shell": {
     "init_hook": [
