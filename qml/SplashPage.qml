@@ -114,6 +114,14 @@ Kirigami.Page {
         Item {
             Layout.fillHeight: true
         }
+
+        Controls.Label {
+            text: Tr.i18n("Version %1", typeof appVersion !== "undefined" ? appVersion : "dev")
+            Layout.alignment: Qt.AlignHCenter
+            Layout.bottomMargin: Kirigami.Units.largeSpacing
+            color: Kirigami.Theme.disabledTextColor
+            font: Kirigami.Theme.smallFont
+        }
     }
 
     FileDialog {

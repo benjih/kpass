@@ -14,7 +14,7 @@ lint:
 	go vet ./...
 
 test:
-	go test ./internal/args/ ./internal/keepass/ ./internal/
+	go test ./internal/args/ ./internal/keepass/ ./internal/version/ ./internal/
 
 run: generate
 	. scripts/kde-env.sh && go run .

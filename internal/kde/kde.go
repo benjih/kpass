@@ -7,12 +7,14 @@ import (
 
 	"github.com/benjih/kpass/internal"
 	"github.com/benjih/kpass/internal/bridge"
+	"github.com/benjih/kpass/internal/version"
 	qt "github.com/mappu/miqt/qt6"
 	"github.com/mappu/miqt/qt6/qml"
 )
 
 func SetupKDEAppearance() {
 	qt.QCoreApplication_SetApplicationName("KPass")
+	qt.QCoreApplication_SetApplicationVersion(version.String())
 	qt.QCoreApplication_SetOrganizationName("KDE")
 	qt.QCoreApplication_SetOrganizationDomain("kde.org")
 
@@ -110,6 +112,10 @@ func SetupUI(initialFilePath, initialFillHost string) {
 	engine.RootContext().SetContextProperty2(
 		"appIconUrl",
 		qt.NewQVariant11(qt.QUrl_FromLocalFile(filepath.Join(root, "assets", "KPass.png")).ToString()),
+	)
+	engine.RootContext().SetContextProperty2(
+		"appVersion",
+		qt.NewQVariant11(version.String()),
 	)
 	engine.RootContext().SetContextProperty2(
 		"initialFilePath",
