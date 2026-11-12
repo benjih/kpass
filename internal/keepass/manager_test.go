@@ -1,9 +1,12 @@
 package keepass
 
 import (
+	"os"
+	"path/filepath"
 	"testing"
 
 	"github.com/tobischo/gokeepasslib/v3"
+	"github.com/tobischo/gokeepasslib/v3/wrappers"
 )
 
 // --- fileURLToPath ---
@@ -207,3 +210,72 @@ func TestEntryFromLibNoAttachments(t *testing.T) {
 		t.Errorf("expected empty Attachments, got %v", got.Attachments)
 	}
 }
+
+func TestUpdateEntryPasswordPersistsAcrossSaveAndReopen(t *testing.T) {
+	dir := t.TempDir()
+	dbPath := filepath.Join(dir, "test.kdbx")
+	masterPassword := "master-secret"
+
+	db := gokeepasslib.NewDatabase()
+	db.Credentials = gokeepasslib.NewPasswordCredentials(masterPassword)
+	entry := gokeepasslib.NewEntry()
+	entry.Values = []gokeepasslib.ValueData{
+		{Key: "Title", Value: gokeepasslib.V{Content: "Email"}},
+		{Key: "UserName", Value: gokeepasslib.V{Content: "alice@example.com"}},
+		{Key: "Password", Value: gokeepasslib.V{Content: "initial-pass!", Protected: wrappers.NewBoolWrapper(true)}},
+		{Key: "URL", Value: gokeepasslib.V{Content: "https://mail.example.com"}},
+		{Key: "Notes", Value: gokeepasslib.V{Content: "initial note"}},
+	}
+	group := gokeepasslib.NewGroup()
+	group.Name = "Personal"
+	group.Entries = []gokeepasslib.Entry{entry}
+	db.Content.Root.Groups = []gokeepasslib.Group{group}
+
+	if err := db.LockProtectedEntries(); err != nil {
+		t.Fatalf("LockProtectedEntries: %v", err)
+	}
+	f, err := os.Create(dbPath)
+	if err != nil {
+		t.Fatalf("Create: %v", err)
+	}
+	if err := gokeepasslib.NewEncoder(f).Encode(db); err != nil {
+		f.Close()
+		t.Fatalf("Encode: %v", err)
+	}
+	f.Close()
+
+	m := NewManager()
+	if !m.Open(dbPath, masterPassword) {
+		t.Fatalf("Open failed: %s", m.LastError())
+	}
+	if got := m.Entries()[0].Password; got != "initial-pass!" {
+		t.Fatalf("initial password = %q, want %q", got, "initial-pass!")
+	}
+
+	newPassword := "updated-p@ssw0rd-123!"
+	if !m.UpdateEntry(0, "Email", "alice@example.com", newPassword, "https://mail.example.com", "updated note") {
+		t.Fatalf("UpdateEntry failed: %s", m.LastError())
+	}
+	if err := m.Save(); err != nil {
+		t.Fatalf("Save failed: %v", err)
+	}
+
+	// Verify in-memory state stays unlocked if rebuilt after Save.
+	m.rebuildIndex()
+	if got := m.Entries()[0].Password; got != newPassword {
+		t.Errorf("password in memory after Save = %q, want %q", got, newPassword)
+	}
+
+	// Re-open the saved file and verify the updated password persisted.
+	m2 := NewManager()
+	if !m2.Open(dbPath, masterPassword) {
+		t.Fatalf("second Open failed: %s", m2.LastError())
+	}
+	if len(m2.Entries()) != 1 {
+		t.Fatalf("len(Entries) = %d, want 1", len(m2.Entries()))
+	}
+	if got := m2.Entries()[0].Password; got != newPassword {
+		t.Errorf("password after reopen = %q, want %q", got, newPassword)
+	}
+}
+

@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/tobischo/gokeepasslib/v3"
+	"github.com/tobischo/gokeepasslib/v3/wrappers"
 )
 
 // Manager holds an opened KeePass database and a flat entry index for QML.
@@ -62,7 +63,7 @@ func (m *Manager) Open(path, password string) bool {
 		m.lastError = err.Error()
 		return false
 	}
-	// Entries remain unlocked for the session; the encoder re-locks on save.
+	// Entries remain unlocked for the session; Save locks before encoding and re-unlocks after.
 
 	m.db = db
 	m.filePath = path
@@ -98,15 +99,31 @@ func (m *Manager) Save() error {
 	}
 	tmpName := tmp.Name()
 
-	// Capture both errors before removing the temp file so we don't lose
+	// gokeepasslib's Encoder expects protected entries to be locked on input
+	// (it calls UnlockProtectedEntries then LockProtectedEntries internally)
+	// and leaves them locked on return. Lock before encoding and unlock after
+	// so in-memory entries remain plaintext for the rest of the session.
+	if err := m.db.LockProtectedEntries(); err != nil {
+		tmp.Close()
+		os.Remove(tmpName)
+		m.lastError = err.Error()
+		return err
+	}
+
+	// Capture errors before removing the temp file so we don't lose
 	// encodeErr if Close also fails.
 	encodeErr := gokeepasslib.NewEncoder(tmp).Encode(m.db)
+	unlockErr := m.db.UnlockProtectedEntries()
 	closeErr := tmp.Close()
-	if encodeErr != nil || closeErr != nil {
+	if encodeErr != nil || unlockErr != nil || closeErr != nil {
 		os.Remove(tmpName)
 		if encodeErr != nil {
 			m.lastError = encodeErr.Error()
 			return encodeErr
+		}
+		if unlockErr != nil {
+			m.lastError = unlockErr.Error()
+			return unlockErr
 		}
 		m.lastError = closeErr.Error()
 		return closeErr
@@ -277,8 +294,11 @@ func (m *Manager) updateInGroup(id string, group *gokeepasslib.Group, data map[s
 				v.Value.Content = val
 			} else {
 				entry.Values = append(entry.Values, gokeepasslib.ValueData{
-					Key:   libKey,
-					Value: gokeepasslib.V{Content: val},
+					Key: libKey,
+					Value: gokeepasslib.V{
+						Content:   val,
+						Protected: wrappers.NewBoolWrapper(libKey == "Password"),
+					},
 				})
 			}
 		}

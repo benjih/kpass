@@ -49,6 +49,11 @@ Kirigami.ScrollablePage {
                         urlField.text,
                         notesField.text
                     )
+                    detailsPage.entryTitle = titleField.text
+                    detailsPage.entryUsername = usernameField.text
+                    detailsPage.entryPassword = passwordFieldInDetails.text
+                    detailsPage.entryUrl = urlField.text
+                    detailsPage.entryNotes = notesField.text
                     showPassiveNotification(Tr.i18n("Entry updated in memory"))
                 }
                 detailsPage.isEditing = !detailsPage.isEditing
