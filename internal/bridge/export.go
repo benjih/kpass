@@ -11,7 +11,8 @@ void *newDatabaseManager(void *parent);
 import "C"
 
 import (
-	"encoding/json"
+	"encoding/json/jsontext"
+	"encoding/json/v2"
 	"sync"
 	"unsafe"
 
@@ -87,8 +88,7 @@ func goGetEntriesJSON() *C.char {
 			Attachments: names,
 		}
 	}
-	b, _ := json.Marshal(dtos)
-	return C.CString(string(b))
+	return C.CString(string(marshalJSON(dtos)))
 }
 
 // goGetGroupsJSON returns the deduplicated group names as a JSON string array.
@@ -98,8 +98,19 @@ func goGetEntriesJSON() *C.char {
 func goGetGroupsJSON() *C.char {
 	mu.Lock()
 	defer mu.Unlock()
-	b, _ := json.Marshal(manager.Groups())
-	return C.CString(string(b))
+	return C.CString(string(marshalJSON(manager.Groups())))
+}
+
+// marshalJSON encodes v as JSON for the Qt parser.
+// AllowInvalidUTF8 rewrites invalid UTF-8 as U+FFFD so Marshal succeeds
+// and the rest of the array stays intact. Any other error still returns []:
+// v2's b is a truncated prefix on failure, and Qt cannot parse that prefix.
+func marshalJSON(v any) []byte {
+	b, err := json.Marshal(v, jsontext.AllowInvalidUTF8(true))
+	if err != nil || len(b) == 0 {
+		return []byte("[]")
+	}
+	return b
 }
 
 // goGetLastError returns the last error message, or an empty string on success.

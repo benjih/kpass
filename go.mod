@@ -1,6 +1,6 @@
 module github.com/benjih/kpass
 
-go 1.26.2
+go 1.27.0
 
 require (
 	github.com/mappu/miqt v0.15.0
